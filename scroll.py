@@ -196,8 +196,8 @@ class Bot():
 					msg  = ' '.join(args[3:])[1:]
 					if chan in  (connection.channel, '#scroll'):
 						args = msg.split()
-						if msg == '@cancer':
-							await self.sendmsg(chan, bold + 'CANCER IRC Bot - Developed by acidvegas in Python - https://git.acid.vegas/cancer')
+						if msg == '@scroll':
+							await self.sendmsg(chan, bold + 'Scroll IRC Art Bot - Developed by acidvegas in Python - https://git.acid.vegas/scroll')
 						elif args[0] == '.ascii':
 							if msg == '.ascii stop' and self.playing:
 								if chan in self.loops:
