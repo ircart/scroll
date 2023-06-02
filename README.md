@@ -2,6 +2,8 @@
 
 Scroll is full-featured IRC bot that carries a **PENIS PUMP** & will brighten up all the mundane chats in your lame IRC channels with some colorful IRC artwork! Designed to be extremely stable, this bot is sure to stay rock hard & handle itself quite well!
 
+![](.screens/preview.png)
+
 All of the IRC art is loaded directly from the [@ircart/ircart](https://github.com/ircart/ircart) repository.
 
 ## Dependencies
