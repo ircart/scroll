@@ -252,8 +252,9 @@ class Bot():
 										self.playing = True
 										self.loops[chan] = asyncio.create_task(self.play(chan, random.choice(self.db)))
 									else:
-										ascii = [dir+'/'+option for dir in self.db if option in self.db[dir]][0]
+										ascii = [dir+'/'+option for dir in self.db if option in self.db[dir]]
 										if ascii:
+											ascii = ascii[0]
 											if ascii.startswith('root/'):
 												ascii = ascii.split('/')[1]
 											self.playing = True
