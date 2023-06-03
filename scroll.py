@@ -199,9 +199,10 @@ class Bot():
 						if msg == '@scroll':
 							await self.sendmsg(chan, bold + 'Scroll IRC Art Bot - Developed by acidvegas in Python - https://git.acid.vegas/scroll')
 						elif args[0] == '.ascii':
-							if msg == '.ascii stop' and self.playing:
-								if chan in self.loops:
-									self.loops[chan].cancel()
+							if msg == '.ascii stop':
+								if self.playing:
+									if chan in self.loops:
+										self.loops[chan].cancel()
 							elif time.time() - self.last < throttle.flood:
 								if not self.slow:
 									if not self.playing:
