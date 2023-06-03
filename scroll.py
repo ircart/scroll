@@ -127,6 +127,7 @@ class Bot():
 					self.db[dir] = self.db[dir]+[name,] if dir in self.db else [name,]
 				else:
 					self.db['root'] = self.db['root']+[item,] if 'root' in self.db else [item,]
+			await self.sendmsg(connection.channel, bold + color('database synced', light_green))
 		except Exception as ex:
 			try:
 				await self.irc_error(connection.channel, 'failed to sync database', ex)
@@ -245,6 +246,8 @@ class Bot():
 											await asyncio.sleep(throttle.message)
 									else:
 										await self.irc_error(chan, 'no results found', query)
+								elif msg == '.ascii sync':
+									await self.sync()
 								elif len(args) == 2:
 									option = args[1]
 									if [x for x in ('..','?','%','\\') if x in option]:

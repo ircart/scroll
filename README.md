@@ -18,6 +18,7 @@ All of the IRC art is loaded directly from the [@ircart/ircart](https://github.c
 | `.ascii random [dir]`             | play random art, optionally from the [dir] directory only  |
 | `.ascii search <query>`           | search for art diles that match \<query>                   |
 | `.ascii stop`                     | stop playing art                                           |
+| `.ascii sync`                     | sync the ascii database to pump the newest art             |
 
 ## Preview
 
