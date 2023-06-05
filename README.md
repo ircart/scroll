@@ -20,6 +20,8 @@ All of the IRC art is loaded directly from the [ircart](https://github.com/ircar
 | `.ascii stop`            | stop playing art                                          |
 | `.ascii sync`            | sync the ascii database to pump the newest art            |
 
+**NOTE**: You can do `.ascii help` to play the [help.txt](https://github.com/ircart/ircart/blob/master/ircart/doc/help.txt) file in your channel.
+
 ## Preview
 
 ![](.screens/preview.png)
