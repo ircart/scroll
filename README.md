@@ -2,7 +2,7 @@
 
 Scroll is full-featured IRC bot that carries a **PENIS PUMP** & will brighten up all the mundane chats in your lame IRC channels with some colorful IRC artwork! Designed to be extremely stable, this bot is sure to stay rock hard & handle itself quite well!
 
-All of the IRC art is loaded directly from the [@ircart/ircart](https://github.com/ircart/ircart) repository.
+All of the IRC art is loaded directly from the [ircart](https://github.com/ircart/ircart) repository, which means anytime that the repository is updated with new art, you can simply `.ascii sync` & then be able to pump the latest art packs!
 
 ## Dependencies
 * [python](https://www.python.org/)
@@ -23,6 +23,8 @@ All of the IRC art is loaded directly from the [@ircart/ircart](https://github.c
 ## Preview
 
 ![](.screens/preview.png)
+
+Come pump with us in **#scroll** on [irc.supernets.org](ircs://irc.supernets.org)
 
 ## Mirrors
 - [acid.vegas](https://git.acid.vegas/scroll)
