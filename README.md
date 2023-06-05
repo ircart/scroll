@@ -9,16 +9,16 @@ All of the IRC art is loaded directly from the [@ircart/ircart](https://github.c
 * [chardet](https://pypi.org/project/chardet/) *(`pip install chardet`)*
 
 ## Commands
-| Command                           | Description                                                |
-| --------------------------------- | ---------------------------------------------------------- |
-| `@scroll`                         | information about scroll                                   |
-| `.ascii <name>`                   | play the \<name> art file                                  |
-| `.ascii dirs`                     | list of ascii directories                                  |
-| `.ascii list`                     | list of ascii filenames                                    |
-| `.ascii random [dir]`             | play random art, optionally from the [dir] directory only  |
-| `.ascii search <query>`           | search for art diles that match \<query>                   |
-| `.ascii stop`                     | stop playing art                                           |
-| `.ascii sync`                     | sync the ascii database to pump the newest art             |
+| Command                  | Description                                               |
+| ------------------------ | --------------------------------------------------------- |
+| `@scroll`                | information about scroll                                  |
+| `.ascii <name>`          | play the \<name> art file                                 |
+| `.ascii dirs`            | list of art directories                                   |
+| `.ascii list`            | list of art filenames                                     |
+| `.ascii random [dir]`    | play random art, optionally from the [dir] directory only |
+| `.ascii search <query>`  | search for art diles that match \<query>                  |
+| `.ascii stop`            | stop playing art                                          |
+| `.ascii sync`            | sync the ascii database to pump the newest art            |
 
 ## Preview
 

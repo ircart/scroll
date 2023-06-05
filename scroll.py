@@ -2,6 +2,7 @@
 # Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.acid.vegas/scroll)
 
 import asyncio
+import json
 import random
 import ssl
 import time
@@ -18,16 +19,16 @@ class connection:
 	modes   = None
 
 class identity:
-	nickname = 'scroll'
+	nickname = 'scr0ll'
 	username = 'scroll'
 	realname = 'git.acid.vegas/scroll'
 	nickserv = None
 
 class throttle:
-	flood     = 3    # delay between each command
+	flood     = 2    # delay between each command
 	max_lines = 300  # maximum number of lines in art file to be played outside of #scroll
-	message   = 0.05 # delay between each line sent
-	results   = 10   # maximum number of results returned from search
+	message   = 0.03 # delay between each line sent
+	results   = 25   # maximum number of results returned from search
 
 # Formatting Control Characters / Color Codes
 bold        = '\x02'
@@ -69,7 +70,7 @@ def ssl_ctx():
 
 class Bot():
 	def __init__(self):
-		self.db              = dict()
+		self.db              = None
 		self.last            = 0
 		self.loops           = dict()
 		self.playing         = False
@@ -117,26 +118,29 @@ class Bot():
 	async def sync(self):
 		try:
 			cache   = self.db
-			self.db = dict()
-			ascii   = urllib.request.urlopen('https://raw.githubusercontent.com/ircart/ircart/master/ircart/.list').readlines()
-			for item in ascii:
-				item = item.decode(chardet.detect(item)['encoding']).replace('\n','').replace('\r','')
-				if '/' in item:
-					dir  = item.split('/')[0]
-					name = item.split('/')[1]
-					self.db[dir] = self.db[dir]+[name,] if dir in self.db else [name,]
-				else:
-					self.db['root'] = self.db['root']+[item,] if 'root' in self.db else [item,]
-			await self.sendmsg(connection.channel, bold + color('database synced', light_green))
+			self.db = {'root':list()}
+			sha     = json.loads(urllib.request.urlopen('https://api.github.com/repos/ircart/ircart/contents').read().decode('utf-8'))[1]['sha']
+			files   = json.loads(urllib.request.urlopen(f'https://api.github.com/repos/ircart/ircart/git/trees/{sha}?recursive=true').read().decode('utf-8'))['tree']
+			for file in files:
+				if file['type'] != 'tree':
+					file['path'] = file['path'][:-4]
+					if '/' in file['path']:
+						dir  = file['path'].split('/')[0]
+						name = file['path'].split('/')[1]
+						self.db[dir] = self.db[dir]+[name,] if dir in self.db else [name,]
+					else:
+						self.db['root'].append(file['path'])
 		except Exception as ex:
 			try:
 				await self.irc_error(connection.channel, 'failed to sync database', ex)
 			except:
 				error(connection.channel, 'failed to sync database', ex)
-			self.db = cache
+			finally:
+				self.db = cache
 
 	async def play(self, chan, name):
 		try:
+			print(name)
 			ascii = urllib.request.urlopen(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt', timeout=10)
 			if ascii.getcode() == 200:
 				ascii = ascii.readlines()
@@ -220,23 +224,22 @@ class Bot():
 								elif msg == '.ascii random':
 									self.playing = True
 									dir   = random.choice(list(self.db))
-									ascii = random.choice(self.db[dir]) if dir == 'root' else dir+'/'+random.choice(self.db[dir])
+									ascii = f'{dir}/{random.choice(self.db[dir])}'
 									self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
+								elif msg == '.ascii sync':
+									await self.sync()
+									await self.sendmsg(connection.channel, bold + color('database synced', light_green))
 								elif args[1] == 'random' and len(args) == 3:
 									dir = args[2]
 									if dir in self.db:
 										self.playing = True
-										ascii = random.choice(self.db[dir])
-										self.loops[chan] = asyncio.create_task(self.play(chan, dir+'/'+ascii))
+										ascii = f'{dir}/{random.choice(self.db[dir])}'
+										self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
 									else:
 										await self.irc_error(chan, 'invalid directory name', dir)
 								elif args[1] == 'search' and len(args) == 3:
 									query   = args[2]
-									results = list()
-									for dir in self.db:
-										for ascii in self.db[dir]:
-											if query in ascii:
-												results.append({'dir':dir,'name':ascii})
+									results = [{'name':ascii,'dir':dir} for dir in self.db for ascii in self.db[dir] if query in ascii]
 									if results:
 										for item in results[:throttle.results]:
 											if item['dir'] == 'root':
@@ -246,25 +249,14 @@ class Bot():
 											await asyncio.sleep(throttle.message)
 									else:
 										await self.irc_error(chan, 'no results found', query)
-								elif msg == '.ascii sync':
-									await self.sync()
 								elif len(args) == 2:
-									option = args[1]
-									if [x for x in ('..','?','%','\\') if x in option]:
-										await self.irc_error(chan, 'nice try nerd')
-									elif option == 'random':
+									query = args[1]
+									results = [dir+'/'+ascii for dir in self.db for ascii in self.db[dir] if query == ascii]
+									if results:
 										self.playing = True
-										self.loops[chan] = asyncio.create_task(self.play(chan, random.choice(self.db)))
+										self.loops[chan] = asyncio.create_task(self.play(chan, results[0]))
 									else:
-										ascii = [dir+'/'+option for dir in self.db if option in self.db[dir]]
-										if ascii:
-											ascii = ascii[0]
-											if ascii.startswith('root/'):
-												ascii = ascii.split('/')[1]
-											self.playing = True
-											self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
-										else:
-											await self.irc_error(chan, 'no results found', option)
+										await self.irc_error(chan, 'no results found', query)
 			except (UnicodeDecodeError, UnicodeEncodeError):
 				pass
 			except Exception as ex:
