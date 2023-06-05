@@ -253,8 +253,9 @@ class Bot():
 									query = args[1]
 									results = [dir+'/'+ascii for dir in self.db for ascii in self.db[dir] if query == ascii]
 									if results:
+										results = results[0].replace('root/','')
 										self.playing = True
-										self.loops[chan] = asyncio.create_task(self.play(chan, results[0]))
+										self.loops[chan] = asyncio.create_task(self.play(chan, results))
 									else:
 										await self.irc_error(chan, 'no results found', query)
 			except (UnicodeDecodeError, UnicodeEncodeError):
