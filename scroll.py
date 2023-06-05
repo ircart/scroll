@@ -19,7 +19,7 @@ class connection:
 	modes   = None
 
 class identity:
-	nickname = 'scr0ll'
+	nickname = 'scroll'
 	username = 'scroll'
 	realname = 'git.acid.vegas/scroll'
 	nickserv = None
