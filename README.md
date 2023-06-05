@@ -2,7 +2,9 @@
 
 Scroll is full-featured IRC bot that carries a **PENIS PUMP** & will brighten up all the mundane chats in your lame IRC channels with some colorful IRC artwork! Designed to be extremely stable, this bot is sure to stay rock hard & handle itself quite well!
 
-All of the IRC art is loaded directly from the [ircart](https://github.com/ircart/ircart) repository, which means anytime that the repository is updated with new art, you can simply `.ascii sync` & then be able to pump the latest art packs!
+All of the IRC art is loaded directly from the [ircart](https://github.com/ircart/ircart) central repository using the [Github API](https://docs.github.com/en/rest), which means that anytime the repository is updated with new art, you can simply `.ascii sync` & then be able to pump the latest art packs!
+
+There is no API key needed, no local art files needed, & no reason to not setup scroll in your channel today!
 
 ## Dependencies
 * [python](https://www.python.org/)
