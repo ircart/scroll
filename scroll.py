@@ -29,6 +29,7 @@ class throttle:
 	max_lines = 300  # maximum number of lines in art file to be played outside of #scroll
 	message   = 0.03 # delay between each line sent
 	results   = 25   # maximum number of results returned from search
+	pastes    = True # toggle the .ascii play command
 
 # Formatting Control Characters / Color Codes
 bold        = '\x02'
@@ -141,10 +142,12 @@ class Bot():
 			finally:
 				self.db = cache
 
-	async def play(self, chan, name):
+	async def play(self, chan, name, paste=None):
 		try:
-			print(name)
-			ascii = urllib.request.urlopen(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt', timeout=10)
+			if paste:
+				ascii = urllib.request.urlopen(name), timeout=10)
+			else:
+				ascii = urllib.request.urlopen(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt', timeout=10)
 			if ascii.getcode() == 200:
 				ascii = ascii.readlines()
 				if len(ascii) > throttle.max_lines and chan != '#scroll':
@@ -232,6 +235,12 @@ class Bot():
 								elif msg == '.ascii sync':
 									await self.sync()
 									await self.sendmsg(chan, bold + color('database synced', light_green))
+								elif args[1] == 'play' and len(args) == 3 and throttle.pastes:
+									url = args[2]
+									if url.startswith('https://pastebin.com/raw/') and len(url.split('raw/')) > 1:
+										self.loops[chan] = asyncio.create_task(self.play(chan, url, paste=True))
+									else:
+										await self.irc_error(chan 'invalid pastebin url', paste)
 								elif args[1] == 'random' and len(args) == 3:
 									dir = args[2]
 									if dir in self.db:

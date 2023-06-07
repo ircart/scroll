@@ -11,16 +11,17 @@ There is no API key needed, no local art files needed, & no reason to not setup 
 * [chardet](https://pypi.org/project/chardet/) *(`pip install chardet`)*
 
 ## Commands
-| Command                  | Description                                               |
-| ------------------------ | --------------------------------------------------------- |
-| `@scroll`                | information about scroll                                  |
-| `.ascii <name>`          | play the \<name> art file                                 |
-| `.ascii dirs`            | list of art directories                                   |
-| `.ascii list`            | list of art filenames                                     |
-| `.ascii random [dir]`    | play random art, optionally from the [dir] directory only |
-| `.ascii search <query>`  | search for art diles that match \<query>                  |
-| `.ascii stop`            | stop playing art                                          |
-| `.ascii sync`            | sync the ascii database to pump the newest art            |
+| Command                  | Description                                                |
+| ------------------------ | ---------------------------------------------------------- |
+| `@scroll`                | information about scroll                                   |
+| `.ascii <name>`          | play the \<name> art file                                  |
+| `.ascii dirs`            | list of art directories                                    |
+| `.ascii list`            | list of art filenames                                      |
+| `.ascii play <url>`      | play the contents of \<url> *(must be a raw pastebin url)* |
+| `.ascii random [dir]`    | play random art, optionally from the [dir] directory only  |
+| `.ascii search <query>`  | search for art diles that match \<query>                   |
+| `.ascii stop`            | stop playing art                                           |
+| `.ascii sync`            | sync the ascii database to pump the newest art             |
 
 **NOTE**: You can do `.ascii help` to play the [help.txt](https://github.com/ircart/ircart/blob/master/ircart/doc/help.txt) file in your channel.
 
