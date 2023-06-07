@@ -231,7 +231,7 @@ class Bot():
 									self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
 								elif msg == '.ascii sync':
 									await self.sync()
-									await self.sendmsg(connection.channel, bold + color('database synced', light_green))
+									await self.sendmsg(chan, bold + color('database synced', light_green))
 								elif args[1] == 'random' and len(args) == 3:
 									dir = args[2]
 									if dir in self.db:
