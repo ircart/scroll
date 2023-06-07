@@ -155,7 +155,11 @@ class Bot():
 				else:
 					await self.action(chan, 'the ascii gods have chosen... ' + color(name, cyan))
 					for line in ascii:
-						await self.sendmsg(chan, line.decode(chardet.detect(line)['encoding']).replace('\n','').replace('\r','') + reset)
+						try:
+							line = line.decode().replace('\n','').replace('\r','')
+						else:
+							line = line.encode(chardet.detect(line)['encoding']).decode() # Get fucked UTF-16
+							await self.sendmsg(chan, line + reset)
 						await asyncio.sleep(throttle.message)
 			else:
 				await self.irc_error(chan, 'invalid name', name)
