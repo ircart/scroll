@@ -110,16 +110,19 @@ class Bot():
 			else:
 				await self.listen()
 			finally:
+				for item in self.loops:
+					if self.loops[item]:
+						self.loops[item].cancel()
 				self.loops   = dict()
 				self.playing = False
 				self.slow    = False
 				await asyncio.sleep(30)
 
 	async def sync(self):
+		cache   = self.db
+		self.db = {'root':list()}
 		try:
-			cache   = self.db
-			self.db = {'root':list()}
-			sha     = json.loads(urllib.request.urlopen('https://api.github.com/repos/ircart/ircart/contents').read().decode('utf-8'))[1]['sha']
+			sha     = [item['sha'] for item in json.loads(urllib.request.urlopen('https://api.github.com/repos/ircart/ircart/contents').read().decode('utf-8')) if item['path'] == 'ircart'][0]
 			files   = json.loads(urllib.request.urlopen(f'https://api.github.com/repos/ircart/ircart/git/trees/{sha}?recursive=true').read().decode('utf-8'))['tree']
 			for file in files:
 				if file['type'] != 'tree':
