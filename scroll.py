@@ -270,7 +270,7 @@ class Bot():
 								elif args[1] == 'settings':
 									if len(args) == 2:
 										for item in self.settings:
-											await self.sendmsg(chan, color(item, yellow).ljust(10) + color(str(self.settings[item]), grey))
+											await self.sendmsg(chan, color(item.ljust(10), yellow) + color(str(self.settings[item]), grey))
 									elif len(args) == 4 and is_admin(ident):
 										setting = args[2]
 										option  = args[3]
