@@ -177,7 +177,7 @@ class Bot():
 			try:
 				if self.reader.at_eof():
 					break
-				data = await asyncio.wait_for(self.reader.readuntil(b'\r\n'), 200)
+				data = await asyncio.wait_for(self.reader.readuntil(b'\r\n'), 600)
 				line = data.decode('utf-8').strip()
 				args = line.split()
 				debug(line)
