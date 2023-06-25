@@ -4,19 +4,20 @@
 import asyncio
 import json
 import random
+import re
 import ssl
 import time
 import urllib.request
 
 class connection:
-	server  = 'irc.network.com'
+	server  = 'irc.server.com'
 	port    = 6697
 	ipv6    = False
 	ssl     = True
 	vhost   = None
 	channel = '#chats'
 	key     = None
-	modes   = None
+	modes   = 'BdDg'
 
 class identity:
 	nickname = 'scroll'
@@ -24,12 +25,8 @@ class identity:
 	realname = 'git.acid.vegas/scroll'
 	nickserv = None
 
-class throttle:
-	flood     = 2    # delay between each command
-	max_lines = 300  # maximum number of lines in art file to be played outside of #scroll
-	message   = 0.03 # delay between each line sent
-	results   = 25   # maximum number of results returned from search
-	pastes    = True # toggle the .ascii play command
+# Settings
+admin = 'acidvegas!~stillfree@most.dangerous.motherfuck' # CHANGE ME
 
 # Formatting Control Characters / Color Codes
 bold        = '\x02'
@@ -63,6 +60,9 @@ def debug(data):
 def error(data, reason=None):
 	print('{0} | [!] - {1} ({2})'.format(time.strftime('%I:%M:%S'), data, str(reason))) if reason else print('{0} | [!] - {1}'.format(time.strftime('%I:%M:%S'), data))
 
+def is_admin(ident):
+	return re.compile(admin.replace('*','.*')).search(ident)
+
 def ssl_ctx():
 	ctx = ssl.create_default_context()
 	ctx.check_hostname = False
@@ -72,9 +72,10 @@ def ssl_ctx():
 class Bot():
 	def __init__(self):
 		self.db              = None
-		self.last            = 0
+		self.last            = time.time()
 		self.loops           = dict()
 		self.playing         = False
+		self.settings        = {'flood':1, 'ignore':'big,birds,doc,gorf,hang,nazi,pokemon', 'lines':300, 'msg':0.03, 'results':25, 'paste':True}
 		self.slow            = False
 		self.reader          = None
 		self.writer          = None
@@ -145,22 +146,23 @@ class Bot():
 	async def play(self, chan, name, paste=None):
 		try:
 			if paste:
-				ascii = urllib.request.urlopen(name), timeout=10)
+				ascii = urllib.request.urlopen(name, timeout=10)
 			else:
 				ascii = urllib.request.urlopen(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt', timeout=10)
 			if ascii.getcode() == 200:
 				ascii = ascii.readlines()
-				if len(ascii) > throttle.max_lines and chan != '#scroll':
+				if len(ascii) > int(self.settings['lines']) and chan != '#scroll':
 					await self.irc_error(chan, 'file is too big', 'take it to #scroll')
 				else:
 					await self.action(chan, 'the ascii gods have chosen... ' + color(name, cyan))
 					for line in ascii:
+						line = line.replace('\n','').replace('\r','')
 						try:
-							line = line.decode().replace('\n','').replace('\r','')
-						else:
+							line = line.decode()
+						except:
 							line = line.encode(chardet.detect(line)['encoding']).decode() # Get fucked UTF-16
-							await self.sendmsg(chan, line + reset)
-						await asyncio.sleep(throttle.message)
+						await self.sendmsg(chan, line + reset)
+						await asyncio.sleep(self.settings['msg'])
 			else:
 				await self.irc_error(chan, 'invalid name', name)
 		except Exception as ex:
@@ -206,9 +208,10 @@ class Bot():
 						await asyncio.sleep(3)
 						await self.raw(f'JOIN {connection.channel} {connection.key}') if connection.key else await self.raw('JOIN ' + connection.channel)
 				elif args[1] == 'PRIVMSG' and len(args) >= 4:
-					nick = args[0].split('!')[0][1:]
-					chan = args[2]
-					msg  = ' '.join(args[3:])[1:]
+					ident = args[0][1:]
+					nick  = args[0].split('!')[0][1:]
+					chan  = args[2]
+					msg   = ' '.join(args[3:])[1:]
 					if chan in  (connection.channel, '#scroll'):
 						args = msg.split()
 						if msg == '@scroll':
@@ -218,7 +221,7 @@ class Bot():
 								if self.playing:
 									if chan in self.loops:
 										self.loops[chan].cancel()
-							elif time.time() - self.last < throttle.flood:
+							elif time.time() - self.last < self.settings['flood']:
 								if not self.slow:
 									if not self.playing:
 										await self.irc_error(chan, 'slow down nerd')
@@ -228,23 +231,23 @@ class Bot():
 								if msg == '.ascii dirs':
 									for dir in self.db:
 										await self.sendmsg(chan, '[{0}] {1}{2}'.format(color(str(list(self.db).index(dir)+1).zfill(2), pink), dir.ljust(10), color('('+str(len(self.db[dir]))+')', grey)))
-										await asyncio.sleep(throttle.message)
+										await asyncio.sleep(self.settings['msg'])
 								elif msg == '.ascii list':
 									await self.sendmsg(chan, underline + color('https://raw.githubusercontent.com/ircart/ircart/master/ircart/.list', light_blue))
 								elif msg == '.ascii random':
 									self.playing = True
-									dir   = random.choice(list(self.db))
+									dir   = random.choice([item for item in self.db if item not in self.settings['ignore']])
 									ascii = f'{dir}/{random.choice(self.db[dir])}'
 									self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
-								elif msg == '.ascii sync':
+								elif msg == '.ascii sync' and is_admin(ident):
 									await self.sync()
 									await self.sendmsg(chan, bold + color('database synced', light_green))
-								elif args[1] == 'play' and len(args) == 3 and throttle.pastes:
+								elif args[1] == 'play' and len(args) == 3 and self.settings['paste']:
 									url = args[2]
 									if url.startswith('https://pastebin.com/raw/') and len(url.split('raw/')) > 1:
 										self.loops[chan] = asyncio.create_task(self.play(chan, url, paste=True))
 									else:
-										await self.irc_error(chan 'invalid pastebin url', paste)
+										await self.irc_error(chan, 'invalid pastebin url', paste)
 								elif args[1] == 'random' and len(args) == 3:
 									dir = args[2]
 									if dir in self.db:
@@ -257,14 +260,42 @@ class Bot():
 									query   = args[2]
 									results = [{'name':ascii,'dir':dir} for dir in self.db for ascii in self.db[dir] if query in ascii]
 									if results:
-										for item in results[:throttle.results]:
+										for item in results[:int(self.settings['results'])]:
 											if item['dir'] == 'root':
 												await self.sendmsg(chan, '[{0}] {1}'.format(color(str(results.index(item)+1).zfill(2), pink), item['name']))
 											else:
 												await self.sendmsg(chan, '[{0}] {1} {2}'.format(color(str(results.index(item)+1).zfill(2), pink), item['name'], color('('+item['dir']+')', grey)))
-											await asyncio.sleep(throttle.message)
+											await asyncio.sleep(self.settings['msg'])
 									else:
 										await self.irc_error(chan, 'no results found', query)
+								elif args[1] == 'settings':
+									if len(args) == 2:
+										for item in self.settings:
+											await self.sendmsg(chan, color(item, yellow).ljust(10) + color(str(self.settings[item]), grey))
+									elif len(args) == 4 and is_admin(ident):
+										setting = args[2]
+										option  = args[3]
+										if setting in self.settings:
+											if setting in ('flood','lines','msg','results'):
+												try:
+													option = float(option)
+													self.settings[setting] = option
+													await self.sendmsg(chan, color('OK', light_green))
+												except ValueError:
+													await self.sendmsg(chan, 'invalid option', 'must be a float or int')
+											elif setting == 'paste':
+												if option == 'on':
+													self.settings[setting] = True
+													await self.sendmsg(chan, color('OK', light_green))
+												elif option == 'off':
+													self.settings[setting] = False
+													await self.sendmsg(chan, color('OK', light_green))
+												else:
+													await self.irc_error(chan, 'invalid option', 'must be on or off')
+											else:
+												self.settings[setting] = option
+										else:
+											await self.irc_error(chan, 'invalid setting', setting)
 								elif len(args) == 2:
 									query = args[1]
 									results = [dir+'/'+ascii for dir in self.db for ascii in self.db[dir] if query == ascii]
