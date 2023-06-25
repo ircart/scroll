@@ -281,7 +281,7 @@ class Bot():
 													self.settings[setting] = option
 													await self.sendmsg(chan, color('OK', light_green))
 												except ValueError:
-													await self.sendmsg(chan, 'invalid option', 'must be a float or int')
+													await self.irc_error(chan, 'invalid option', 'must be a float or int')
 											elif setting == 'paste':
 												if option == 'on':
 													self.settings[setting] = True
