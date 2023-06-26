@@ -61,6 +61,13 @@ def debug(data):
 def error(data, reason=None):
 	print('{0} | [!] - {1} ({2})'.format(time.strftime('%I:%M:%S'), data, str(reason))) if reason else print('{0} | [!] - {1}'.format(time.strftime('%I:%M:%S'), data))
 
+def get_url(url, git=False):
+	data = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'}
+	if git:
+		data['Accept'] = 'application/vnd.github.v3+json'
+	req = urllib.request.Request(url, headers=data)
+	return urllib.request.urlopen(req, timeout=10)
+
 def is_admin(ident):
 	return re.compile(admin.replace('*','.*')).search(ident)
 
@@ -125,8 +132,8 @@ class Bot():
 		cache   = self.db
 		self.db = {'root':list()}
 		try:
-			sha     = [item['sha'] for item in json.loads(urllib.request.urlopen('https://api.github.com/repos/ircart/ircart/contents').read().decode('utf-8')) if item['path'] == 'ircart'][0]
-			files   = json.loads(urllib.request.urlopen(f'https://api.github.com/repos/ircart/ircart/git/trees/{sha}?recursive=true').read().decode('utf-8'))['tree']
+			sha     = [item['sha'] for item in json.loads(get_url('https://api.github.com/repos/ircart/ircart/contents', True).read().decode('utf-8')) if item['path'] == 'ircart'][0]
+			files   = json.loads(get_url(f'https://api.github.com/repos/ircart/ircart/git/trees/{sha}?recursive=true', True).read().decode('utf-8'))['tree']
 			for file in files:
 				if file['type'] != 'tree':
 					file['path'] = file['path'][:-4]
@@ -147,9 +154,9 @@ class Bot():
 	async def play(self, chan, name, paste=None):
 		try:
 			if paste:
-				ascii = urllib.request.urlopen(name, timeout=10)
+				ascii = get_url(name)
 			else:
-				ascii = urllib.request.urlopen(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt', timeout=10)
+				ascii = get_url(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt')
 			if ascii.getcode() == 200:
 				ascii = ascii.readlines()
 				if len(ascii) > int(self.settings['lines']) and chan != '#scroll':
@@ -236,7 +243,7 @@ class Bot():
 									url = args[2]
 									if url.startswith('https://') or url.startswith('http://'):
 										try:
-											content = urllib.request.urlopen(url).read()
+											content = get_url(url).read()
 											ascii   = await img2irc.convert(content, int(self.settings['png_width']))
 										except Exception as ex:
 											await self.irc_error(chan, 'failed to convert image', ex)
