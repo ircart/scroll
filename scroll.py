@@ -235,12 +235,16 @@ class Bot():
 								elif args[1] == 'img' and len(args) == 3:
 									url = args[2]
 									if url.startswith('https://') or url.startswith('http://'):
-										content = urllib.request.urlopen(url).read()
-										ascii   = await img2irc.convert(content, int(self.settings['png_width']))
-										if ascii:
-											for line in ascii:
-												await self.sendmsg(chan, line)
-												await asyncio.sleep(self.settings['msg'])
+										try:
+											content = urllib.request.urlopen(url).read()
+											ascii   = await img2irc.convert(content, int(self.settings['png_width']))
+										except Exception as ex:
+											await self.irc_error(chan, 'failed to convert image', ex)
+										else:
+											if ascii:
+												for line in ascii:
+													await self.sendmsg(chan, line)
+													await asyncio.sleep(self.settings['msg'])
 								elif msg == '.ascii list':
 									await self.sendmsg(chan, underline + color('https://raw.githubusercontent.com/ircart/ircart/master/ircart/.list', light_blue))
 								elif msg == '.ascii random':
