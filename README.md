@@ -53,4 +53,4 @@ Come pump with us in **#scroll** on [irc.supernets.org](ircs://irc.supernets.org
 ___
 
 ###### Mirrors
-[acid.vegas](https://git.acid.vegas/asciiblaster) • [GitHub](https://github.com/ircart/asciiblaster) • [GitLab](https://gitlab.com/ircart/asciiblaster) • [SourceHut](https://git.sr.ht/~acidvegas/asciiblaster) • [SuperNETs](https://git.supernets.org/ircart/asciiblaster)
+[acid.vegas](https://git.acid.vegas/scroll) • [GitHub](https://github.com/ircart/scroll) • [GitLab](https://gitlab.com/ircart/scroll) • [SourceHut](https://git.sr.ht/~acidvegas/scroll) • [SuperNETs](https://git.supernets.org/ircart/scroll)
