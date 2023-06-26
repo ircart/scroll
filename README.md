@@ -9,6 +9,7 @@ There is no API key needed, no local art files needed, & no reason to not setup 
 ## Dependencies
 * [python](https://www.python.org/)
 * [chardet](https://pypi.org/project/chardet/) *(`pip install chardet`)*
+* [pillow](https://pypi.org/project/pillow/) *(`pip install pillow`)*
 
 ## Commands
 | Command                              | Description                                                |
