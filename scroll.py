@@ -249,9 +249,12 @@ class Bot():
 											await self.irc_error(chan, 'failed to convert image', ex)
 										else:
 											if ascii:
-												for line in ascii:
-													await self.sendmsg(chan, line)
-													await asyncio.sleep(self.settings['msg'])
+												if len(ascii) <= self.settings['lines']:
+													for line in ascii:
+														await self.sendmsg(chan, line)
+														await asyncio.sleep(self.settings['msg'])
+												else:
+													await self.irc_error('image is too big', 'take it to #scroll')
 								elif msg == '.ascii list':
 									await self.sendmsg(chan, underline + color('https://raw.githubusercontent.com/ircart/ircart/master/ircart/.list', light_blue))
 								elif msg == '.ascii random':
