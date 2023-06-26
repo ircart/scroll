@@ -2,8 +2,9 @@
 # Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.acid.vegas/scroll)
 
 '''
-
-big props to wrk (wr34k) for this one, did most of the work, just cleaned it up a little
+Props:
+	- forked idea from malcom's img2irc (https://github.com/waveplate/img2irc)
+	- big props to wrk (wr34k) for forking this one
 
 pull request: https://github.com/ircart/scroll/pull/3
 
