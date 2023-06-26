@@ -17,7 +17,7 @@ There is no API key needed, no local art files needed, & no reason to not setup 
 | `@scroll`                            | information about scroll                                   |
 | `.ascii <name>`                      | play the \<name> art file                                  |
 | `.ascii dirs`                        | list of art directories                                    |
-| `.ascii img <ur>`                    | convert image \<ur> to art                                 |
+| `.ascii img <ur>`                    | convert image \<ur> to art *(experimental, beta status)*   |
 | `.ascii list`                        | list of art filenames                                      |
 | `.ascii play <url>`                  | play the contents of \<url> *(must be a raw pastebin url)* |
 | `.ascii random [dir]`                | play random art, optionally from the [dir] directory only  |
