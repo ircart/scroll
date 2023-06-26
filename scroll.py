@@ -82,6 +82,7 @@ class Bot():
 		self.db              = None
 		self.last            = time.time()
 		self.loops           = dict()
+		self.host            = ''
 		self.playing         = False
 		self.settings        = {'flood':1, 'ignore':'big,birds,doc,gorf,hang,nazi,pokemon', 'lines':500, 'msg':0.03, 'paste':True, 'png_width':80, 'results':25}
 		self.slow            = False
@@ -201,6 +202,11 @@ class Bot():
 					await self.raw(f'JOIN {connection.channel} {connection.key}') if connection.key else await self.raw('JOIN ' + connection.channel)
 					await self.raw('JOIN #scroll')
 					await self.sync()
+				elif args[1] == '311' and len(args) >= 6: # RPL_WHOISUSER
+					nick = args[2]
+					host = args[5]
+					if nick == identity.nickname:
+						self.host = host
 				elif args[1] == '433':
 					error('The bot is already running or nick is in use.')
 				elif args[1] == 'INVITE' and len(args) == 4:
@@ -208,6 +214,11 @@ class Bot():
 					chan    = args[3][1:]
 					if invited == identity.nickname and chan in (connection.channel, '#scroll'):
 						await self.raw(f'JOIN {connection.channel} {connection.key}') if connection.key else await self.raw('JOIN ' + connection.channel)
+				elif args[1] == 'JOIN' and len(args) >= 3:
+					nick = args[0].split('!')[0][1:]
+					host = args[0].split('@')[1]
+					if nick == identity.nickname:
+						self.host = host
 				elif args[1] == 'KICK' and len(args) >= 4:
 					chan   = args[2]
 					kicked = args[3]
@@ -241,10 +252,11 @@ class Bot():
 										await asyncio.sleep(self.settings['msg'])
 								elif args[1] == 'img' and len(args) == 3:
 									url = args[2]
+									width = 512 - len(line.split(' :')[0])+4
 									if url.startswith('https://') or url.startswith('http://'):
 										try:
 											content = get_url(url).read()
-											ascii   = await img2irc.convert(content, int(self.settings['png_width']))
+											ascii   = await img2irc.convert(content, 512 - len(f":{identity.nickname}!{identity.username}@{self.host} PRIVMSG {chan} :\r\n"), int(self.settings['png_width']))
 										except Exception as ex:
 											await self.irc_error(chan, 'failed to convert image', ex)
 										else:

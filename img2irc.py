@@ -17,40 +17,54 @@ try:
 except ImportError:
 	raise SystemExit('missing required \'pillow\' library (https://pypi.org/project/pillow/)')
 
-async def convert(data, img_width=80):
+def convert(data, max_line_len, img_width=80):
 	image = Image.open(io.BytesIO(data))
 	del data
+	return convert_image(image, max_line_len, img_width)
+
+def convert_image(image, max_line_len, img_width):
 	(width, height) = image.size
 	img_height = img_width / width * height
 	del height, width
 	image.thumbnail((img_width, img_height), Image.Resampling.LANCZOS)
-	del img_height, img_width
-	ansi_image = AnsiImage(image)
-	del image
+	del img_height
 	CHAR = '\u2580'
-	buf = ''
-	for (y, row) in enumerate(ansi_image.halfblocks):
-		last_fg = -1
-		last_bg = -1
-		for (x, pixel_pair) in enumerate(row):
+	buf = list()
+	print(image.size)
+	for i in range(0, image.size[1], 2):
+		if i+1 >= image.size[1]:
+			bitmap = [[rgb_to_hex(image.getpixel((x, i))) for x in range(image.size[0])]]
+			bitmap += [[0 for _ in range(image.size[0])]]
+		else:
+			bitmap = [[rgb_to_hex(image.getpixel((x, y))) for x in range(image.size[0])] for y in [i, i+1]]
+		top_row = [AnsiPixel(px) for px in bitmap[0]]
+		bottom_row = [AnsiPixel(px) for px in bitmap[1]]
+		buf += [""]
+		last_fg = last_bg = -1
+		ansi_row = list()
+		for j in range(image.size[0]):
+			top_pixel = top_row[j]
+			bottom_pixel = bottom_row[j]
+			pixel_pair = AnsiPixelPair(top_pixel, bottom_pixel)
 			fg = pixel_pair.top.irc
 			bg = pixel_pair.bottom.irc
-			if x != 0:
+			if j != 0:
 				if fg == last_fg and bg == last_bg:
-					buf += CHAR
+					buf[-1] += CHAR
 				elif bg == last_bg:
-					buf += f'\x03{fg}{CHAR}'
+					buf[-1] += f'\x03{fg}{CHAR}'
 				else:
-					buf += f'\x03{fg},{bg}{CHAR}'
+					buf[-1] += f'\x03{fg},{bg}{CHAR}'
 			else:
-				buf += f'\x03{fg},{bg}{CHAR}'
+				buf[-1] += f'\x03{fg},{bg}{CHAR}'
 			last_fg = fg
 			last_bg = bg
-		if y != len(ansi_image.halfblocks) - 1:
-			buf += '\n'
-		else:
-			buf += '\x0f'
-	return buf.splitlines()
+		print(len(buf[-1].encode('utf-8', 'ignore')), max_line_len)
+		if len(buf[-1].encode('utf-8', 'ignore')) > max_line_len:
+			if img_width - 5 < 10:
+				raise Exception('internal error')
+			return convert_image(image, max_line_len, img_width-5)
+	return buf
 
 def hex_to_rgb(color):
 	r = color >> 16
@@ -59,7 +73,9 @@ def hex_to_rgb(color):
 	return (r,g,b)
 
 def rgb_to_hex(rgb):
-	(r,g,b) = rgb
+	r = rgb[0]
+	g = rgb[1]
+	b = rgb[2]
 	return (r << 16) + (g << 8) + b
 
 def color_distance_squared(c1, c2):
@@ -97,23 +113,3 @@ class AnsiPixelPair:
 	def __init__(self, top, bottom):
 		self.top = top
 		self.bottom = bottom
-
-class AnsiImage:
-	def __init__(self, image):
-		self.bitmap = [[rgb_to_hex(image.getpixel((x, y))) for x in range(image.size[0])] for y in range(image.size[1])]
-		if len(self.bitmap) % 2 != 0:
-			self.bitmap.append([0 for x in range(image.size[0])])
-		ansi_bitmap = [[AnsiPixel(y) for y in x] for x in self.bitmap]
-		ansi_canvas = list()
-		for two_rows in range(0, len(ansi_bitmap), 2):
-			top_row = ansi_bitmap[two_rows]
-			bottom_row = ansi_bitmap[two_rows+1]
-			ansi_row = list()
-			for i in range(len(self.bitmap[0])):
-				top_pixel = top_row[i]
-				bottom_pixel = bottom_row[i]
-				pixel_pair = AnsiPixelPair(top_pixel, bottom_pixel)
-				ansi_row.append(pixel_pair)
-			ansi_canvas.append(ansi_row)
-		self.image = image
-		self.halfblocks = ansi_canvas
