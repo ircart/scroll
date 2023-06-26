@@ -2,6 +2,7 @@
 # Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.acid.vegas/scroll)
 
 import asyncio
+import io
 import json
 import random
 import re
@@ -10,7 +11,7 @@ import time
 import urllib.request
 
 class connection:
-	server  = 'irc.server.com'
+	server  = 'irc.network.com'
 	port    = 6697
 	ipv6    = False
 	ssl     = True
@@ -75,7 +76,7 @@ class Bot():
 		self.last            = time.time()
 		self.loops           = dict()
 		self.playing         = False
-		self.settings        = {'flood':1, 'ignore':'big,birds,doc,gorf,hang,nazi,pokemon', 'lines':300, 'msg':0.03, 'results':25, 'paste':True}
+		self.settings        = {'flood':1, 'ignore':'big,birds,doc,gorf,hang,nazi,pokemon', 'lines':500, 'msg':0.03, 'paste':True, 'png_width':80, 'results':25}
 		self.slow            = False
 		self.reader          = None
 		self.writer          = None
@@ -231,6 +232,15 @@ class Bot():
 									for dir in self.db:
 										await self.sendmsg(chan, '[{0}] {1}{2}'.format(color(str(list(self.db).index(dir)+1).zfill(2), pink), dir.ljust(10), color('('+str(len(self.db[dir]))+')', grey)))
 										await asyncio.sleep(self.settings['msg'])
+								elif args[1] == 'img' and len(args) == 3:
+									url = args[2]
+									if url.startswith('https://') or url.startswith('http://'):
+										content = urllib.request.urlopen(url).read()
+										ascii   = await img2irc.convert(content, int(self.settings['png_width']))
+										if ascii:
+											for line in ascii:
+												await self.sendmsg(chan, line)
+												await asyncio.sleep(self.settings['msg'])
 								elif msg == '.ascii list':
 									await self.sendmsg(chan, underline + color('https://raw.githubusercontent.com/ircart/ircart/master/ircart/.list', light_blue))
 								elif msg == '.ascii random':
@@ -275,7 +285,7 @@ class Bot():
 										setting = args[2]
 										option  = args[3]
 										if setting in self.settings:
-											if setting in ('flood','lines','msg','results'):
+											if setting in ('flood','lines','msg','png_width','results'):
 												try:
 													option = float(option)
 													self.settings[setting] = option
@@ -324,5 +334,8 @@ try:
 	import chardet
 except ImportError:
 	raise SystemExit('missing required \'chardet\' library (https://pypi.org/project/chardet/)')
-else:
-	asyncio.run(Bot().connect())
+try:
+	import img2irc
+except ImportError:
+	raise SystemExit('missing required \'img2irc\' file (https://github.com/ircart/scroll/blob/master/img2irc.py)')
+asyncio.run(Bot().connect())
