@@ -44,7 +44,9 @@ There is no API key needed, no local art files needed, & no reason to not setup 
 
 ## Preview
 
-![](.screens/preview.png)
+![](.screens/preview1.png)
+
+![](.screens/preview2.png)
 
 Come pump with us in **#scroll** on [irc.supernets.org](ircs://irc.supernets.org)
 
