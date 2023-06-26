@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 # Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.acid.vegas/scroll)
 
-'''big props to wrk (wr34k) for this one, did most of the work, just cleaned it up a little'''
+'''
+
+big props to wrk (wr34k) for this one, did most of the work, just cleaned it up a little
+
+pull request: https://github.com/ircart/scroll/pull/3
+
+'''
 
 import io
 
