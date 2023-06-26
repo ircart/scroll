@@ -19,7 +19,7 @@ class connection:
     vhost   = None
     channel = '#chats'
     key     = None
-    modes   = ''
+    modes   = 'BdDg'
 
 class identity:
     nickname = 'scroll'
