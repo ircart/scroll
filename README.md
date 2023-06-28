@@ -55,6 +55,17 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 
 Come pump with us in **#scroll** on [irc.supernets.org](ircs://irc.supernets.org)
 
+## Todo
+- git integration to `git clone` the [ircart](https://github.com/ircart/ircart) repository & `git pull` on `.ascii sync` *(Load art files into RAM for faster pumping)*
+- `.ascii scroll` command to loop playing random art files *(Stopped with `.ascii stop`)*
+- Add arguments to `.ascii img` for contrast, brightness, * effects *(Take them out of self.settings)*
+- Setting to auto convert any image link to IRC art *(Emulate link previews like on Discord LOL)*
+- `.ascii record` to record lines from the senders nick for uploads *(Stopped with `.ascii stop`)*
+- Improve randomness with `.ascii random`
+- Fall back to non-utf8 encoding on decoding failure *(Reference: 'bytes' object has no attribute 'encode' on `.ascii putfall`)*
+- Convert all art to PNG files for an online gallery & local previews directory
+- Possibly add art metadata *(author, tags, etc)* for credits & improved search
+
 ___
 
 ###### Mirrors
