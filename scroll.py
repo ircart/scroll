@@ -329,6 +329,7 @@ class Bot():
 													await self.irc_error(chan, 'invalid option', 'must be on or off')
 											else:
 												self.settings[setting] = option
+												await self.sendmsg(chan, color('OK', light_green))
 										else:
 											await self.irc_error(chan, 'invalid setting', setting)
 								elif len(args) == 2:

@@ -92,7 +92,7 @@ def convert_image(image, max_line_len, img_width, palette):
 		if len(buf[-1].encode('utf-8', 'ignore')) > max_line_len:
 			if img_width - 5 < 10:
 				raise Exception('internal error')
-			return convert_image(image, max_line_len, img_width-5)
+			return convert_image(image, max_line_len, img_width-5, palette)
 	return buf
 
 def hex_to_rgb(color):
