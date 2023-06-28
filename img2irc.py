@@ -45,7 +45,7 @@ palettes = {
 			  0xbcbcbc, 0xe2e2e2, 0xffffff]
 }
 
-def convert(data, max_line_len, img_width=80, palette='RBG88'):
+def convert(data, max_line_len, img_width=80, palette='RBG99'):
 	if palette not in palettes:
 		raise Exception('invalid palette option')
 	palette = palettes[palette]

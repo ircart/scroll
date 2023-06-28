@@ -84,7 +84,7 @@ class Bot():
 		self.loops           = dict()
 		self.host            = ''
 		self.playing         = False
-		self.settings        = {'flood':1, 'ignore':'big,birds,doc,gorf,hang,nazi,pokemon', 'lines':500, 'msg':0.03, 'palette':'RBG88', 'paste':True, 'png_width':80, 'results':25}
+		self.settings        = {'flood':1, 'ignore':'big,birds,doc,gorf,hang,nazi,pokemon', 'lines':500, 'msg':0.03, 'palette':'RBG99', 'paste':True, 'png_width':80, 'results':25}
 		self.slow            = False
 		self.reader          = None
 		self.writer          = None
@@ -256,7 +256,7 @@ class Bot():
 									if url.startswith('https://') or url.startswith('http://'):
 										try:
 											content = get_url(url).read()
-											ascii   = await img2irc.convert(content, 512 - len(f":{identity.nickname}!{identity.username}@{self.host} PRIVMSG {chan} :\r\n"), int(self.settings['png_width']), self.settings['palette'])
+											ascii   = img2irc.convert(content, 512 - len(f":{identity.nickname}!{identity.username}@{self.host} PRIVMSG {chan} :\r\n"), int(self.settings['png_width']), self.settings['palette'])
 										except Exception as ex:
 											await self.irc_error(chan, 'failed to convert image', ex)
 										else:
