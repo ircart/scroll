@@ -14,7 +14,7 @@ pull request: https://github.com/ircart/scroll/pull/3
 import io
 
 try:
-	from PIL import Image, ImageEnhance
+	from PIL import Image, ImageEnhance, ImageOps
 except ImportError:
 	raise SystemExit('missing required \'pillow\' library (https://pypi.org/project/pillow/)')
 
@@ -51,13 +51,15 @@ def convert(data, max_line_len, img_width=80, palette='RGB99', enhance=False, ef
 		raise Exception('invalid palette option')
 	palette = palettes[palette]
 	image = Image.open(io.BytesIO(data))
+	del data
 	if enhance:
 		image = ImageEnhance.Contrast(image)
-	if effect == 'grey':
+	if effect == 'greyscale':
 		image = image.convert("L")
-	elif effect == 'black':
+	elif effect == 'blackwhite':
 		image = image.convert("1")
-	del data
+	elif effect == 'invert':
+		image = ImageOps.invert(image)
 	return convert_image(image, max_line_len, img_width, palette)
 
 def convert_image(image, max_line_len, img_width, palette):
