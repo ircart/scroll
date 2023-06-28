@@ -84,7 +84,18 @@ class Bot():
 		self.loops           = dict()
 		self.host            = ''
 		self.playing         = False
-		self.settings        = {'flood':1, 'ignore':'big,birds,doc,gorf,hang,nazi,pokemon', 'lines':500, 'msg':0.03, 'paste':True, 'png_brightness':0, 'png_contrast':0, 'png_effect':None, 'png_palette':'RGB99', 'png_width':80, 'results':25}
+		self.settings        = {
+			'flood'          : 1,
+			'ignore'         : 'big,birds,doc,gorf,hang,nazi,pokemon',
+			'lines'          : 500,
+			'msg'            : 0.03,
+			'paste'          : True,
+			'png_brightness' : 0,
+			'png_contrast'   : 0,
+			'png_effect'     : None,
+			'png_palette'    : 'RGB99',
+			'png_width'      : 80,
+			'results'        : 25}
 		self.slow            = False
 		self.reader          = None
 		self.writer          = None

@@ -2,13 +2,17 @@
 # Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.acid.vegas/scroll)
 
 '''
-Props:
-	- forked idea from malcom's img2irc (https://github.com/waveplate/img2irc)
-	- big props to wrk (wr34k) for forking this one
-	- brightness/contrast/effects & more added by acidvegas
+Pull Request:
+	- https://github.com/ircart/scroll/pull/3
 
-pull request: https://github.com/ircart/scroll/pull/3
+	Props:
+		- forked idea from malcom's img2irc (https://github.com/waveplate/img2irc)
+		- big props to wrk (wr34k) for forking this one
+		- brightness/contrast/effects & more added by acidvegas
 
+Interesting:
+	- https://pythonexamples.org/pillow-image-blend/
+	- https://pythonexamples.org/pillow-access-rgb-channels-of-image/
 '''
 
 import io
