@@ -59,7 +59,7 @@ def convert(data, max_line_len, img_width=80, palette='RGB99', brightness=False,
 	palette = palettes[palette]
 	image = Image.open(io.BytesIO(data))
 	del data
-	if birghtness:
+	if brightness:
 		image = ImageEnhance.Brightness(im).enhance(brightness)
 	if contrast:
 		image = ImageEnhance.Contrast(image).enhance(contrast)
