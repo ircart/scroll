@@ -27,7 +27,7 @@ class identity:
 	nickserv = None
 
 # Settings
-admin = 'acidvegas!~stillfree@most.dangerous.motherfuck' # CHANGE ME
+admin = 'acidvegas!*@*' # Can use wildcards (Must be in nick!user@host format)
 
 # Formatting Control Characters / Color Codes
 bold        = '\x02'
