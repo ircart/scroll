@@ -84,7 +84,7 @@ class Bot():
 		self.loops           = dict()
 		self.host            = ''
 		self.playing         = False
-		self.settings        = {'flood':1, 'ignore':'big,birds,doc,gorf,hang,nazi,pokemon', 'lines':500, 'msg':0.03, 'paste':True, 'png_contrast':False, 'png_palette':'RGB99', 'png_width':80, 'results':25}
+		self.settings        = {'flood':1, 'ignore':'big,birds,doc,gorf,hang,nazi,pokemon', 'lines':500, 'msg':0.03, 'paste':True, 'png_brightness':0, 'png_contrast':0, 'png_effect':None, 'png_palette':'RGB99', 'png_width':80, 'results':25}
 		self.slow            = False
 		self.reader          = None
 		self.writer          = None
@@ -256,7 +256,7 @@ class Bot():
 									if url.startswith('https://') or url.startswith('http://'):
 										try:
 											content = get_url(url).read()
-											ascii   = img2irc.convert(content, 512 - len(f":{identity.nickname}!{identity.username}@{self.host} PRIVMSG {chan} :\r\n"), int(self.settings['png_width']), self.settings['png_palette'], self.settings['png_contrast'])
+											ascii   = img2irc.convert(content, 512 - len(f":{identity.nickname}!{identity.username}@{self.host} PRIVMSG {chan} :\r\n"), int(self.settings['png_width']), self.settings['png_palette'], self.settings['png_brightness'], self.settings['png_contrast'], self.settings['png_effect'])
 										except Exception as ex:
 											await self.irc_error(chan, 'failed to convert image', ex)
 										else:
@@ -311,14 +311,14 @@ class Bot():
 										setting = args[2]
 										option  = args[3]
 										if setting in self.settings:
-											if setting in ('flood','lines','msg','png_width','results'):
+											if setting in ('flood','lines','msg','png_brightness','png_contrast','png_width','results'):
 												try:
 													option = float(option)
 													self.settings[setting] = option
 													await self.sendmsg(chan, color('OK', light_green))
 												except ValueError:
 													await self.irc_error(chan, 'invalid option', 'must be a float or int')
-											elif setting in ('paste', 'png_contrast'):
+											elif setting == 'paste':
 												if option == 'on':
 													self.settings[setting] = True
 													await self.sendmsg(chan, color('OK', light_green))
@@ -327,6 +327,8 @@ class Bot():
 													await self.sendmsg(chan, color('OK', light_green))
 												else:
 													await self.irc_error(chan, 'invalid option', 'must be on or off')
+											elif setting == 'png_effect' and option in ('false','none','off','0'):
+												self.settings[setting] = None
 											else:
 												self.settings[setting] = option
 												await self.sendmsg(chan, color('OK', light_green))

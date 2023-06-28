@@ -5,7 +5,7 @@
 Props:
 	- forked idea from malcom's img2irc (https://github.com/waveplate/img2irc)
 	- big props to wrk (wr34k) for forking this one
-	- contrast enhancement, effects, & RBG88 added by acidvegas
+	- brightness/contrast/effects & more added by acidvegas
 
 pull request: https://github.com/ircart/scroll/pull/3
 
@@ -18,6 +18,7 @@ try:
 except ImportError:
 	raise SystemExit('missing required \'pillow\' library (https://pypi.org/project/pillow/)')
 
+effects  = ('greyscale', 'blackwhite', 'invert')
 palettes = {
 	'RGB88': [0xffffff, 0x000000, 0x00007f, 0x009300, 0xff0000, 0x7f0000, 0x9c009c, 0xfc7f00,
 			  0xffff00, 0x00fc00, 0x009393, 0x00ffff, 0x0000fc, 0xff00ff, 0x0,      0x0,
@@ -46,14 +47,18 @@ palettes = {
 			  0xbcbcbc, 0xe2e2e2, 0xffffff]
 }
 
-def convert(data, max_line_len, img_width=80, palette='RGB99', enhance=False, effect=None):
+def convert(data, max_line_len, img_width=80, palette='RGB99', brightness=False, contrast=False, effect=None):
 	if palette not in palettes:
 		raise Exception('invalid palette option')
+	if effect and effect not in effects:
+		raise Exception('invalid effect option')
 	palette = palettes[palette]
 	image = Image.open(io.BytesIO(data))
 	del data
-	if enhance:
-		image = ImageEnhance.Contrast(image)
+	if birghtness:
+		image = ImageEnhance.Brightness(im).enhance(brightness)
+	if contrast:
+		image = ImageEnhance.Contrast(image).enhance(contrast)
 	if effect == 'greyscale':
 		image = image.convert("L")
 	elif effect == 'blackwhite':
