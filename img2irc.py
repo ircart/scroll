@@ -14,11 +14,11 @@ pull request: https://github.com/ircart/scroll/pull/3
 import io
 
 try:
-	from PIL import Image, ImageEnhance, ImageOps
+	from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 except ImportError:
 	raise SystemExit('missing required \'pillow\' library (https://pypi.org/project/pillow/)')
 
-effects  = ('greyscale', 'blackwhite', 'invert')
+effects  = ('blackwhite', 'blur', 'greyscale', 'invert', 'smooth')
 palettes = {
 	'RGB88': [0xffffff, 0x000000, 0x00007f, 0x009300, 0xff0000, 0x7f0000, 0x9c009c, 0xfc7f00,
 			  0xffff00, 0x00fc00, 0x009393, 0x00ffff, 0x0000fc, 0xff00ff, 0x0,      0x0,
@@ -59,12 +59,16 @@ def convert(data, max_line_len, img_width=80, palette='RGB99', brightness=False,
 		image = ImageEnhance.Brightness(im).enhance(brightness)
 	if contrast:
 		image = ImageEnhance.Contrast(image).enhance(contrast)
-	if effect == 'greyscale':
-		image = image.convert("L")
-	elif effect == 'blackwhite':
+	if effect == 'blackwhite':
 		image = image.convert("1")
+	elif effect == 'blur':
+		image - image.filter(ImageFilter.BLUR)
+	elif effect == 'greyscale':
+		image = image.convert("L")
 	elif effect == 'invert':
 		image = ImageOps.invert(image)
+	elif effect == 'smooth':
+		image = image.filter(ImageFilter.SMOOTH_MORE)
 	return convert_image(image, max_line_len, img_width, palette)
 
 def convert_image(image, max_line_len, img_width, palette):

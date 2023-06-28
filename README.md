@@ -31,19 +31,19 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 **NOTE**: The sync & settings commands are admin only! `admin` is a *nick!user@host* mask defined in [scroll.py](https://github.com/ircart/scroll/blob/master/scroll.py)
 
 ## Settings
-| Setting          | Type         | Default | Description                                                          |
-| ---------------- | ------------ | ------------------------------------------------------------------------------ |
-| `flood`          | int or float | delay between each command                                                     |
-| `ignore`         | str          | directories to ignore in `.ascii random` *(comma seperated list, no spaces)*   |
-| `lines`          | int          | max lines outside of #scroll                                                   |
-| `msg`            | int or float | delay between each message sent                                                |
-| `paste`          | boolean      | enable or disable `.ascii play`                                                |
-| `png_brightness` | int or float | increase or decrease brightness for `.ascii img` output                        |
-| `png_contrast`   | int or float | increase or decrease contrast   for `.ascii img` output                        |
-| `png_effect`     | str          | change the effect for `.ascii img` output *(greyscale, blackwhite, or invert)* |
-| `png_palette`    | str          | palette option for `.ascii img` output *(RGB99 or RGB88)*                      |
-| `png_width`      | int          | maximum width for `.ascii img` output                                          |
-| `results`        | int          | max results to return in `.ascii search`                                       |
+| Setting          | Type         | Description                                                                                  |
+| ---------------- | ------------ | -------------------------------------------------------------------------------------------- |
+| `flood`          | int or float | delay between each command                                                                   |
+| `ignore`         | str          | directories to ignore in `.ascii random` *(comma seperated list, no spaces)*                 |
+| `lines`          | int          | max lines outside of #scroll                                                                 |
+| `msg`            | int or float | delay between each message sent                                                              |
+| `paste`          | boolean      | enable or disable `.ascii play`                                                              |
+| `png_brightness` | int or float | increase or decrease brightness for `.ascii img` output                                      |
+| `png_contrast`   | int or float | increase or decrease contrast   for `.ascii img` output                                      |
+| `png_effect`     | str          | change the effect for `.ascii img` output *(blackwhite, blue, greyscale, invert, or smooth)* |
+| `png_palette`    | str          | palette option for `.ascii img` output *(RGB99 or RGB88)*                                    |
+| `png_width`      | int          | maximum width for `.ascii img` output                                                        |
+| `results`        | int          | max results to return in `.ascii search`                                                     |
 
 **NOTE**: Setting **0** to `png_brightness`, `png_contrast`, or `png_effect` will disable the setting.
 
