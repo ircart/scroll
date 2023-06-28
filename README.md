@@ -4,7 +4,7 @@ Scroll is full-featured IRC bot that carries a **PENIS PUMP** & will brighten up
 
 All of the IRC art is loaded directly from the [ircart](https://github.com/ircart/ircart) central repository using the [Github API](https://docs.github.com/en/rest), which means that anytime the repository is updated with new art, you can simply `.ascii sync` & then be able to pump the latest art packs!
 
-There is no API key needed, no local art files needed, & no reason to not setup scroll in your channel today!
+Designed to be portable, there is no API key needed, no local art files needed, & no reason to not setup scroll in your channel(s) today!
 
 ## Dependencies
 * [python](https://www.python.org/)
@@ -31,16 +31,17 @@ There is no API key needed, no local art files needed, & no reason to not setup 
 **NOTE**: The sync & settings commands are admin only! `admin` is a *nick!user@host* mask defined in [scroll.py](https://github.com/ircart/scroll/blob/master/scroll.py)
 
 ## Settings
-| Setting     | Description                                                                  |
-| ----------- | ---------------------------------------------------------------------------- |
-| `flood`     | delay between each command                                                   |
-| `ignore`    | directories to ignore in `.ascii random` *(comma seperated list, no spaces)* |
-| `lines`     | max lines outside of #scroll                                                 |
-| `msg`       | delay between each message sent                                              |
-| `paste`     | enable or disable `.ascii play`                                              |
-| `png_width` | maximum width for `.ascii img` output                                        |
-| `results`   | max results to return in `.ascii search`                                     |
-
+| Setting        | Description                                                                  |
+| -------------- | ---------------------------------------------------------------------------- |
+| `flood`        | delay between each command                                                   |
+| `ignore`       | directories to ignore in `.ascii random` *(comma seperated list, no spaces)* |
+| `lines`        | max lines outside of #scroll                                                 |
+| `msg`          | delay between each message sent                                              |
+| `paste`        | enable or disable `.ascii play`                                              |
+| `png_contrast` | enable or disable contrast enhancement for `.ascii img` output               |
+| `png_palette`  | palette option for `.ascii img` output *(RGB99 or RGB88)*                    |
+| `png_width`    | maximum width for `.ascii img` output                                        |
+| `results`      | max results to return in `.ascii search`                                     |
 
 ## Preview
 
