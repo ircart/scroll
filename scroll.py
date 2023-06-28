@@ -161,7 +161,7 @@ class Bot():
 			if ascii.getcode() == 200:
 				ascii = ascii.readlines()
 				if len(ascii) > int(self.settings['lines']) and chan != '#scroll':
-					await self.irc_error(chan, 'file is too big', 'take those {len(ascii):,} lines to #scroll')
+					await self.irc_error(chan, 'file is too big', f'take those {len(ascii):,} lines to #scroll')
 				else:
 					await self.action(chan, 'the ascii gods have chosen... ' + color(name, cyan))
 					for line in ascii:
