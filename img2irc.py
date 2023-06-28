@@ -5,6 +5,7 @@
 Props:
 	- forked idea from malcom's img2irc (https://github.com/waveplate/img2irc)
 	- big props to wrk (wr34k) for forking this one
+	- contrast enhancement, effects, & RBG88 added by acidvegas
 
 pull request: https://github.com/ircart/scroll/pull/3
 
