@@ -279,7 +279,7 @@ class Bot():
 										dir = args[2]
 									else:
 										random.seed(random.randrange(sys.maxsize))
-										random.choice([item for item in self.db if item not in self.settings['ignore']])
+										dir = random.choice([item for item in self.db if item not in self.settings['ignore']])
 									if dir in self.db:
 										random.seed(random.randrange(sys.maxsize))
 										ascii = f'{dir}/{random.choice(self.db[dir])}'
