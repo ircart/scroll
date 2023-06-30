@@ -7,6 +7,7 @@ import json
 import random
 import re
 import ssl
+import sys
 import time
 import urllib.request
 
@@ -15,7 +16,7 @@ class connection:
 	port    = 6697
 	ipv6    = False
 	ssl     = True
-	vhost   = None
+	vhost   = None # Must in ('ip', port) format
 	channel = '#chats'
 	key     = None
 	modes   = 'BdDg'
@@ -85,17 +86,15 @@ class Bot():
 		self.host            = ''
 		self.playing         = False
 		self.settings        = {
-			'flood'          : 1,
-			'ignore'         : 'big,birds,doc,gorf,hang,nazi,pokemon',
-			'lines'          : 500,
-			'msg'            : 0.03,
-			'paste'          : True,
-			'png_brightness' : 0,
-			'png_contrast'   : 0,
-			'png_effect'     : None,
-			'png_palette'    : 'RGB99',
-			'png_width'      : 80,
-			'results'        : 25}
+			'flood'               : 1,
+			'ignore'              : 'big,birds,doc,gorf,hang,nazi,pokemon',
+			'lines'               : 500,
+			'msg'                 : 0.03,
+			'paste'               : True,
+			'png_palette'         : 'RGB99',
+			'png_quantize_colors' : 99,
+			'png_width'           : 80,
+			'results'             : 25}
 		self.slow            = False
 		self.reader          = None
 		self.writer          = None
@@ -163,27 +162,47 @@ class Bot():
 			finally:
 				self.db = cache
 
-	async def play(self, chan, name, paste=None):
 		try:
-			if paste:
+			content = get_url(url).read()
+		except Exception as ex:
+			await self.irc_error(chan, 'failed to convert image', ex)
+		else:
+			if ascii:
+				if len(ascii) <= self.settings['lines']:
+					for line in ascii:
+						await self.sendmsg(chan, line)
+						await asyncio.sleep(self.settings['msg'])
+				else:
+					await self.irc_error('image is too big', 'take it to #scroll')
+
+
+	async def play(self, chan, name, img=False, paste=False):
+		try:
+			if img or paste:
 				ascii = get_url(name)
 			else:
 				ascii = get_url(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt')
 			if ascii.getcode() == 200:
-				ascii = ascii.readlines()
+				if img:
+					ascii = img2irc.convert(ascii.read(), img, int(self.settings['png_width']), self.settings['png_palette'], int(self.settings['png_quantize_colors']))
+				else:
+					ascii = ascii.readlines()
 				if len(ascii) > int(self.settings['lines']) and chan != '#scroll':
 					await self.irc_error(chan, 'file is too big', f'take those {len(ascii):,} lines to #scroll')
 				else:
-					await self.action(chan, 'the ascii gods have chosen... ' + color(name, cyan))
+					if not img and not paste:
+						await self.action(chan, 'the ascii gods have chosen... ' + color(name, cyan))
 					for line in ascii:
-						try:
-							line = line.decode()
-						except:
-							line = line.encode(chardet.detect(line)['encoding']).decode()  # Get fucked UTF-16
-						await self.sendmsg(chan, line.replace('\n','').replace('\r','') + reset)
+						if type(line) == bytes:
+							try:
+								line = line.decode()
+							except UnicodeError:
+								line = line.decode(chardet.detect(line)['encoding']).encode().decode() # TODO: Do we need to re-encode/decode in UTF-8?
+						line = line.replace('\n','').replace('\r','')
+						await self.sendmsg(chan, line + reset)
 						await asyncio.sleep(self.settings['msg'])
 			else:
-				await self.irc_error(chan, 'invalid name', name)
+				await self.irc_error(chan, 'invalid name', name) if not img and not paste else await self.irc_error(chan, 'invalid url', name)
 		except Exception as ex:
 			try:
 				await self.irc_error(chan, 'error in play function', ex)
@@ -263,28 +282,25 @@ class Bot():
 										await asyncio.sleep(self.settings['msg'])
 								elif args[1] == 'img' and len(args) == 3:
 									url = args[2]
-									width = 512 - len(line.split(' :')[0])+4
 									if url.startswith('https://') or url.startswith('http://'):
-										try:
-											content = get_url(url).read()
-											ascii   = img2irc.convert(content, 512 - len(f":{identity.nickname}!{identity.username}@{self.host} PRIVMSG {chan} :\r\n"), int(self.settings['png_width']), self.settings['png_palette'], self.settings['png_brightness'], self.settings['png_contrast'], self.settings['png_effect'])
-										except Exception as ex:
-											await self.irc_error(chan, 'failed to convert image', ex)
-										else:
-											if ascii:
-												if len(ascii) <= self.settings['lines']:
-													for line in ascii:
-														await self.sendmsg(chan, line)
-														await asyncio.sleep(self.settings['msg'])
-												else:
-													await self.irc_error('image is too big', 'take it to #scroll')
+										self.playing = True
+										width = 512 - len(line.split(' :')[0])+4
+										self.loops[chan] = asyncio.create_task(self.play(chan, url, img=width))
 								elif msg == '.ascii list':
 									await self.sendmsg(chan, underline + color('https://raw.githubusercontent.com/ircart/ircart/master/ircart/.list', light_blue))
-								elif msg == '.ascii random':
-									self.playing = True
-									dir   = random.choice([item for item in self.db if item not in self.settings['ignore']])
-									ascii = f'{dir}/{random.choice(self.db[dir])}'
-									self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
+								elif args[1] == 'random' and len(args) in (2,3):
+									if len(args) == 3:
+										dir = args[2]
+									else:
+										random.seed(random.randrange(sys.maxsize))
+										random.choice([item for item in self.db if item not in self.settings['ignore']])
+									if dir in self.db:
+										random.seed(random.randrange(sys.maxsize))
+										ascii = f'{dir}/{random.choice(self.db[dir])}'
+										self.playing = True
+										self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
+									else:
+										await self.irc_error(chan, 'invalid directory name', dir)
 								elif msg == '.ascii sync' and is_admin(ident):
 									await self.sync()
 									await self.sendmsg(chan, bold + color('database synced', light_green))
@@ -294,14 +310,6 @@ class Bot():
 										self.loops[chan] = asyncio.create_task(self.play(chan, url, paste=True))
 									else:
 										await self.irc_error(chan, 'invalid pastebin url', paste)
-								elif args[1] == 'random' and len(args) == 3:
-									dir = args[2]
-									if dir in self.db:
-										self.playing = True
-										ascii = f'{dir}/{random.choice(self.db[dir])}'
-										self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
-									else:
-										await self.irc_error(chan, 'invalid directory name', dir)
 								elif args[1] == 'search' and len(args) == 3:
 									query   = args[2]
 									results = [{'name':ascii,'dir':dir} for dir in self.db for ascii in self.db[dir] if query in ascii]
@@ -322,7 +330,7 @@ class Bot():
 										setting = args[2]
 										option  = args[3]
 										if setting in self.settings:
-											if setting in ('flood','lines','msg','png_brightness','png_contrast','png_width','results'):
+											if setting in ('flood','lines','msg','png_quantize_colors','png_width','results'):
 												try:
 													option = float(option)
 													self.settings[setting] = option
@@ -338,11 +346,6 @@ class Bot():
 													await self.sendmsg(chan, color('OK', light_green))
 												else:
 													await self.irc_error(chan, 'invalid option', 'must be on or off')
-											elif setting == 'png_effect' and option in ('false','none','off','0'):
-												self.settings[setting] = None
-											else:
-												self.settings[setting] = option
-												await self.sendmsg(chan, color('OK', light_green))
 										else:
 											await self.irc_error(chan, 'invalid setting', setting)
 								elif len(args) == 2:
@@ -378,4 +381,5 @@ try:
 	import img2irc
 except ImportError:
 	raise SystemExit('missing required \'img2irc\' file (https://github.com/ircart/scroll/blob/master/img2irc.py)')
+	pass
 asyncio.run(Bot().connect())

@@ -9,7 +9,8 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 ## Dependencies
 * [python](https://www.python.org/)
 * [chardet](https://pypi.org/project/chardet/) *(`pip install chardet`)*
-* [pillow](https://pypi.org/project/pillow/) *(`pip install pillow`)*
+* [numpy](https://pypi.org/project/numpy/) *(`pip install numpy`)*
+* [opencv-python](https://pypi.org/project/opencv-python/) *(`pip install opencv-python`)*
 
 ## Commands
 | Command                              | Description                                                |
@@ -32,21 +33,17 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 **NOTE**: The sync & settings commands are admin only! `admin` is a *nick!user@host* mask defined in [scroll.py](https://github.com/ircart/scroll/blob/master/scroll.py)
 
 ## Settings
-| Setting          | Type         | Description                                                                                  |
-| ---------------- | ------------ | -------------------------------------------------------------------------------------------- |
-| `flood`          | int or float | delay between each command                                                                   |
-| `ignore`         | str          | directories to ignore in `.ascii random` *(comma seperated list, no spaces)*                 |
-| `lines`          | int          | max lines outside of #scroll                                                                 |
-| `msg`            | int or float | delay between each message sent                                                              |
-| `paste`          | boolean      | enable or disable `.ascii play`                                                              |
-| `png_brightness` | int or float | increase or decrease brightness for `.ascii img` output                                      |
-| `png_contrast`   | int or float | increase or decrease contrast   for `.ascii img` output                                      |
-| `png_effect`     | str          | change the effect for `.ascii img` output *(blackwhite, blue, greyscale, invert, or smooth)* |
-| `png_palette`    | str          | palette option for `.ascii img` output *(RGB99 or RGB88)*                                    |
-| `png_width`      | int          | maximum width for `.ascii img` output                                                        |
-| `results`        | int          | max results to return in `.ascii search`                                                     |
-
-**NOTE**: Setting **0** to `png_brightness`, `png_contrast`, or `png_effect` will disable the setting.
+| Setting               | Type         | Description                                                                                  |
+| --------------------- | ------------ | -------------------------------------------------------------------------------------------- |
+| `flood`               | int or float | delay between each command                                                                   |
+| `ignore`              | str          | directories to ignore in `.ascii random` *(comma seperated list, no spaces)*                 |
+| `lines`               | int          | max lines outside of #scroll                                                                 |
+| `msg`                 | int or float | delay between each message sent                                                              |
+| `paste`               | boolean      | enable or disable `.ascii play`                                                              |
+| `png_quantize_colors` | int          | quantize color option for `.ascii img` output                                                |
+| `png_palette`         | str          | palette option for `.ascii img` output *(RGB99 or RGB88)*                                    |
+| `png_width`           | int          | maximum width for `.ascii img` output                                                        |
+| `results`             | int          | max results to return in `.ascii search`                                                     |
 
 ## Preview
 
@@ -59,7 +56,7 @@ Come pump with us in **#scroll** on [irc.supernets.org](ircs://irc.supernets.org
 ## Todo
 - git integration to `git clone` the [ircart](https://github.com/ircart/ircart) repository & `git pull` on `.ascii sync` *(Load art files into RAM for faster pumping)*
 - `.ascii scroll` command to loop playing random art files *(Stopped with `.ascii stop`)*
-- Add arguments to `.ascii img` for contrast, brightness, * effects *(Take them out of self.settings)*
+- Add arguments to `.ascii img` for palette, width, & other options
 - Setting to auto convert any image link to IRC art *(Emulate link previews like on Discord LOL)*
 - `.ascii record` to record lines from the senders nick for uploads *(Stopped with `.ascii stop`)*
 - Improve randomness with `.ascii random`
