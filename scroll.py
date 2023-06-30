@@ -86,15 +86,15 @@ class Bot():
 		self.host            = ''
 		self.playing         = False
 		self.settings        = {
-			'flood'               : 1,
-			'ignore'              : 'big,birds,doc,gorf,hang,nazi,pokemon',
-			'lines'               : 500,
-			'msg'                 : 0.03,
-			'paste'               : True,
-			'png_palette'         : 'RGB99',
-			'png_quantize_colors' : 99,
-			'png_width'           : 80,
-			'results'             : 25}
+			'flood'        : 1,
+			'ignore'       : 'big,birds,doc,gorf,hang,nazi,pokemon',
+			'lines'        : 500,
+			'msg'          : 0.03,
+			'paste'        : True,
+			'png_palette'  : 'RGB99',
+			'png_quantize' : 99,
+			'png_width'    : 80,
+			'results'      : 25}
 		self.slow            = False
 		self.reader          = None
 		self.writer          = None
@@ -162,20 +162,6 @@ class Bot():
 			finally:
 				self.db = cache
 
-		try:
-			content = get_url(url).read()
-		except Exception as ex:
-			await self.irc_error(chan, 'failed to convert image', ex)
-		else:
-			if ascii:
-				if len(ascii) <= self.settings['lines']:
-					for line in ascii:
-						await self.sendmsg(chan, line)
-						await asyncio.sleep(self.settings['msg'])
-				else:
-					await self.irc_error('image is too big', 'take it to #scroll')
-
-
 	async def play(self, chan, name, img=False, paste=False):
 		try:
 			if img or paste:
@@ -184,7 +170,7 @@ class Bot():
 				ascii = get_url(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt')
 			if ascii.getcode() == 200:
 				if img:
-					ascii = img2irc.convert(ascii.read(), img, int(self.settings['png_width']), self.settings['png_palette'], int(self.settings['png_quantize_colors']))
+					ascii = img2irc.convert(ascii.read(), img, int(self.settings['png_width']), self.settings['png_palette'], int(self.settings['png_quantize']))
 				else:
 					ascii = ascii.readlines()
 				if len(ascii) > int(self.settings['lines']) and chan != '#scroll':
@@ -325,12 +311,12 @@ class Bot():
 								elif args[1] == 'settings':
 									if len(args) == 2:
 										for item in self.settings:
-											await self.sendmsg(chan, color(item.ljust(15), yellow) + color(str(self.settings[item]), grey))
+											await self.sendmsg(chan, color(item.ljust(13), yellow) + color(str(self.settings[item]), grey))
 									elif len(args) == 4 and is_admin(ident):
 										setting = args[2]
 										option  = args[3]
 										if setting in self.settings:
-											if setting in ('flood','lines','msg','png_quantize_colors','png_width','results'):
+											if setting in ('flood','lines','msg','png_quantize','png_width','results'):
 												try:
 													option = float(option)
 													self.settings[setting] = option
