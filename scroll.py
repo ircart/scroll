@@ -2,7 +2,6 @@
 # Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.acid.vegas/scroll)
 
 import asyncio
-import io
 import json
 import random
 import re
@@ -12,7 +11,7 @@ import time
 import urllib.request
 
 class connection:
-	server  = 'irc.network.com'
+	server  = 'irc.server.com'
 	port    = 6697
 	ipv6    = False
 	ssl     = True
@@ -172,19 +171,14 @@ class Bot():
 				if img:
 					ascii = img2irc.convert(ascii.read(), img, int(self.settings['png_width']), self.settings['png_palette'], int(self.settings['png_quantize']))
 				else:
-					ascii = ascii.readlines()
-				if len(ascii) > int(self.settings['lines']) and chan != '#scroll':
+					ascii = ascii.read().decode(chardet.detect(ascii.read())['encoding'])
+				if len(ascii.splitlines()) > int(self.settings['lines']) and chan != '#scroll':
 					await self.irc_error(chan, 'file is too big', f'take those {len(ascii):,} lines to #scroll')
 				else:
 					if not img and not paste:
 						await self.action(chan, 'the ascii gods have chosen... ' + color(name, cyan))
-					for line in ascii:
-						if type(line) == bytes:
-							try:
-								line = line.decode()
-							except UnicodeError:
-								line = line.decode(chardet.detect(line)['encoding']).encode().decode() # TODO: Do we need to re-encode/decode in UTF-8?
-						line = line.replace('\n','').replace('\r','')
+					for line in ascii.splitlines():
+						line = line.replace('\n','').replace('\r','') # do we need this
 						await self.sendmsg(chan, line + reset)
 						await asyncio.sleep(self.settings['msg'])
 			else:
@@ -276,17 +270,22 @@ class Bot():
 									await self.sendmsg(chan, underline + color('https://raw.githubusercontent.com/ircart/ircart/master/ircart/.list', light_blue))
 								elif args[1] == 'random' and len(args) in (2,3):
 									if len(args) == 3:
-										dir = args[2]
+										query = args[2]
 									else:
-										random.seed(random.randrange(sys.maxsize))
-										dir = random.choice([item for item in self.db if item not in self.settings['ignore']])
-									if dir in self.db:
-										random.seed(random.randrange(sys.maxsize))
-										ascii = f'{dir}/{random.choice(self.db[dir])}'
+										query = random.choice([item for item in self.db if item not in self.settings['ignore']])
+									if query in self.db:
+										ascii = f'{query}/{random.choice(self.db[query])}'
 										self.playing = True
 										self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
 									else:
-										await self.irc_error(chan, 'invalid directory name', dir)
+										results = [{'name':ascii,'dir':dir} for dir in self.db for ascii in self.db[dir] if query in ascii]
+										if results:
+											ascii = random.choice(results)
+											ascii = f'{ascii["dir"]}/{ascii["name"]}'
+											self.playing = True
+											self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
+										else:
+											await self.irc_error(chan, 'invalid directory name or search query', query)
 								elif msg == '.ascii sync' and is_admin(ident):
 									await self.sync()
 									await self.sendmsg(chan, bold + color('database synced', light_green))
@@ -295,7 +294,7 @@ class Bot():
 									if url.startswith('https://pastebin.com/raw/') and len(url.split('raw/')) > 1:
 										self.loops[chan] = asyncio.create_task(self.play(chan, url, paste=True))
 									else:
-										await self.irc_error(chan, 'invalid pastebin url', paste)
+										await self.irc_error(chan, 'invalid pastebin url', url)
 								elif args[1] == 'search' and len(args) == 3:
 									query   = args[2]
 									results = [{'name':ascii,'dir':dir} for dir in self.db for ascii in self.db[dir] if query in ascii]
@@ -367,5 +366,4 @@ try:
 	import img2irc
 except ImportError:
 	raise SystemExit('missing required \'img2irc\' file (https://github.com/ircart/scroll/blob/master/img2irc.py)')
-	pass
 asyncio.run(Bot().connect())

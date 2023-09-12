@@ -13,20 +13,19 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 * [opencv-python](https://pypi.org/project/opencv-python/) *(`pip install opencv-python`)*
 
 ## Commands
-| Command                              | Description                                                |
-| ------------------------------------ | ---------------------------------------------------------- |
-| `@scroll`                            | information about scroll                                   |
-| `.ascii <name>`                      | play the \<name> art file                                  |
-| `.ascii dirs`                        | list of art directories                                    |
-| `.ascii img <ur>`                    | convert image \<ur> to art *(experimental, beta status)*   |
-| `.ascii list`                        | list of art filenames                                      |
-| `.ascii play <url>`                  | play the contents of \<url> *(must be a raw pastebin url)* |
-| `.ascii random [dir]`                | play random art, optionally from the [dir] directory only  |
-| `.ascii search <query>`              | search art files that match \<query>                       |
-| `.ascii settings`                    | view settings                                              |
-| `.ascii settings <setting> <option>` | change \<setting> to \<option>                             |
-| `.ascii stop`                        | stop playing art                                           |
-| `.ascii sync`                        | sync the ascii database to pump the newest art             |
+| Command                                | Description                                                |
+| -------------------------------------- | ---------------------------------------------------------- |
+| `@scroll`                              | information about scroll                                   |
+| `.ascii <name>`                        | play the \<name> art file                                  |
+| `.ascii dirs`                          | list of art directories                                    |
+| `.ascii img <ur>`                      | convert image \<ur> to art *(experimental, beta status)*   |
+| `.ascii list`                          | list of art filenames                                      |
+| `.ascii play <url>`                    | play the contents of \<url> *(must be a raw pastebin url)* |
+| `.ascii random [dir|query]`            | play random art, optionally from a [dir] or [query]        |
+| `.ascii search <query>`                | search art files that match \<query>                       |
+| `.ascii settings [<setting> <option>]` | view or change settings                                    |
+| `.ascii stop`                          | stop playing art                                           |
+| `.ascii sync`                          | sync the ascii database to pump the newest art             |
 
 **NOTE**: You can do `.ascii help` to play the [help.txt](https://github.com/ircart/ircart/blob/master/ircart/doc/help.txt) file in your channel.
 
@@ -53,18 +52,7 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 
 Come pump with us in **#scroll** on [irc.supernets.org](ircs://irc.supernets.org)
 
-## Todo
-- git integration to `git clone` the [ircart](https://github.com/ircart/ircart) repository & `git pull` on `.ascii sync` *(Load art files into RAM for faster pumping)*
-- `.ascii scroll` command to loop playing random art files *(Stopped with `.ascii stop`)*
-- Add arguments to `.ascii img` for palette, width, & other options
-- Setting to auto convert any image link to IRC art *(Emulate link previews like on Discord LOL)*
-- `.ascii record` to record lines from the senders nick for uploads *(Stopped with `.ascii stop`)*
-- Improve randomness with `.ascii random`
-- Fall back to non-utf8 encoding on decoding failure *(Reference: 'bytes' object has no attribute 'encode' on `.ascii putfall`)*
-- Convert all art to PNG files for an online gallery & local previews directory
-- Possibly add art metadata *(author, tags, etc)* for credits & improved search
-
 ___
 
 ###### Mirrors
-[acid.vegas](https://git.acid.vegas/scroll) • [GitHub](https://github.com/ircart/scroll) • [GitLab](https://gitlab.com/ircart/scroll) • [SourceHut](https://git.sr.ht/~acidvegas/scroll) • [SuperNETs](https://git.supernets.org/ircart/scroll)
+[acid.vegas](https://git.acid.vegas/scroll) • [GitHub](https://github.com/ircart/scroll) • [GitLab](https://gitlab.com/ircart/scroll) • [SuperNETs](https://git.supernets.org/ircart/scroll)
