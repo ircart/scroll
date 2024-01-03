@@ -161,35 +161,40 @@ class Bot():
 			finally:
 				self.db = cache
 
-	async def play(self, chan, name, img=False, paste=False):
-		try:
-			if img or paste:
-				ascii = get_url(name)
-			else:
-				ascii = get_url(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt')
-			if ascii.getcode() == 200:
-				if img:
-					ascii = img2irc.convert(ascii.read(), img, int(self.settings['png_width']), self.settings['png_palette'], int(self.settings['png_quantize']))
-				else:
-					ascii = ascii.read().decode(chardet.detect(ascii.read())['encoding'])
-				if len(ascii.splitlines()) > int(self.settings['lines']) and chan != '#scroll':
-					await self.irc_error(chan, 'file is too big', f'take those {len(ascii):,} lines to #scroll')
-				else:
-					if not img and not paste:
-						await self.action(chan, 'the ascii gods have chosen... ' + color(name, cyan))
-					for line in ascii.splitlines():
-						line = line.replace('\n','').replace('\r','') # do we need this
-						await self.sendmsg(chan, line + reset)
-						await asyncio.sleep(self.settings['msg'])
-			else:
-				await self.irc_error(chan, 'invalid name', name) if not img and not paste else await self.irc_error(chan, 'invalid url', name)
-		except Exception as ex:
-			try:
-				await self.irc_error(chan, 'error in play function', ex)
-			except:
-				error('error in play function', ex)
-		finally:
-			self.playing = False
+    async def play(self, chan, name, img=False, paste=False):
+        try:
+            if img or paste:
+                ascii = get_url(name)
+            else:
+                ascii = get_url(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt')
+            if ascii.getcode() == 200:
+                if img:
+                    ascii = img2irc.convert(ascii.read(), img, int(self.settings['png_width']), self.settings['png_palette'], int(self.settings['png_quantize_colors']))
+                else:
+                    ascii = ascii.readlines()
+                if len(ascii) > int(self.settings['lines']) and chan != '#scroll':
+                    await self.irc_error(chan, 'file is too big', f'take those {len(ascii):,} lines to #scroll')
+                else:
+                    if not img and not paste:
+                        await self.action(chan, 'the ascii gods have chosen... ' + color(name, cyan))
+                    for line in ascii:
+                        if type(line) == bytes:
+                            try:
+                                line = line.decode()
+                            except UnicodeError:
+                                line = line.decode(chardet.detect(line)['encoding']).encode().decode() # TODO: Do we need to re-encode/decode in UTF-8?
+                        line = line.replace('\n','').replace('\r','')
+                        await self.sendmsg(chan, line + reset)
+                        await asyncio.sleep(self.settings['msg'])
+            else:
+                await self.irc_error(chan, 'invalid name', name) if not img and not paste else await self.irc_error(chan, 'invalid url', name)
+        except Exception as ex:
+            try:
+                await self.irc_error(chan, 'error in play function', ex)
+            except:
+                error('error in play function', ex)
+        finally:
+            self.playing = False
 
 	async def listen(self):
 		while True:
