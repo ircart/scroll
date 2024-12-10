@@ -2,13 +2,12 @@
 # Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.acid.vegas/scroll)
 
 import asyncio
-import json
 import random
 import re
 import ssl
-import sys
 import time
 import urllib.request
+import aiohttp
 
 class connection:
 	server  = 'irc.server.com'
@@ -139,34 +138,45 @@ class Bot():
 				await asyncio.sleep(30)
 
 	async def sync(self):
-		cache   = self.db
-		self.db = {'root':list()}
-		try:
-			sha     = [item['sha'] for item in json.loads(get_url('https://api.github.com/repos/ircart/ircart/contents', True).read().decode('utf-8')) if item['path'] == 'ircart'][0]
-			files   = json.loads(get_url(f'https://api.github.com/repos/ircart/ircart/git/trees/{sha}?recursive=true', True).read().decode('utf-8'))['tree']
-			for file in files:
-				if file['type'] != 'tree':
-					file['path'] = file['path'][:-4]
-					if '/' in file['path']:
-						dir  = file['path'].split('/')[0]
-						name = file['path'].split('/')[1]
-						self.db[dir] = self.db[dir]+[name,] if dir in self.db else [name,]
-					else:
-						self.db['root'].append(file['path'])
-		except Exception as ex:
+		self.db = {'root': []}
+		page = 1
+		per_page = 1000  # Gitea's default per_page limit
+		
+		while True:
 			try:
-				await self.irc_error(connection.channel, 'failed to sync database', ex)
-			except:
-				error(connection.channel, 'failed to sync database', ex)
-			finally:
-				self.db = cache
+				async with aiohttp.ClientSession() as session:
+					async with session.get(f'https://git.supernets.org/api/v1/repos/ircart/ircart/git/trees/master?recursive=1&page={page}&per_page={per_page}') as resp:
+						if resp.status != 200:
+							error('failed to sync database', await resp.text())
+							return
+						files = await resp.json()
+						
+						# Process files from this page
+						for file in files['tree']:
+							if file['path'].startswith('ircart/') and file['path'].endswith('.txt') and not file['path'].startswith('ircart/.'):
+								name = file['path'][7:-4]  # Just strip 'ircart/' prefix and '.txt' suffix
+								if '/' in name:
+									dir, fname = name.split('/', 1)
+									self.db[dir] = self.db[dir]+[fname,] if dir in self.db else [fname,]
+								else:
+									self.db['root'].append(name)
+						
+						# Check if we've processed all pages
+						if not files.get('truncated', False):
+							break
+						
+						page += 1
+
+			except Exception as ex:
+				error('failed to sync database', ex)
+				return
 
 	async def play(self, chan, name, img=False, paste=False):
 		try:
 			if img or paste:
 				ascii = get_url(name)
 			else:
-				ascii = get_url(f'https://raw.githubusercontent.com/ircart/ircart/master/ircart/{name}.txt')
+				ascii = get_url(f'https://git.supernets.org/ircart/ircart/raw/branch/master/ircart/{name}.txt')
 			if ascii.getcode() == 200:
 				if img:
 					ascii = img2irc.convert(ascii.read(), img, int(self.settings['png_width']), self.settings['png_palette'], int(self.settings['png_quantize_colors']))
@@ -272,7 +282,7 @@ class Bot():
 										width = 512 - len(line.split(' :')[0])+4
 										self.loops[chan] = asyncio.create_task(self.play(chan, url, img=width))
 								elif msg == '.ascii list':
-									await self.sendmsg(chan, underline + color('https://raw.githubusercontent.com/ircart/ircart/master/ircart/.list', light_blue))
+									await self.sendmsg(chan, underline + color('https://git.supernets.org/ircart/ircart/src/branch/master/ircart/.list', light_blue))
 								elif args[1] == 'random' and len(args) in (2,3):
 									if len(args) == 3:
 										query = args[2]
