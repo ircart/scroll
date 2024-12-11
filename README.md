@@ -21,7 +21,7 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 | `.ascii img <ur>`                      | convert image \<ur> to art *(experimental, beta status)*   |
 | `.ascii list`                          | list of art filenames                                      |
 | `.ascii play <url>`                    | play the contents of \<url> *(must be a raw pastebin url)* |
-| `.ascii random [dir|query]`            | play random art, optionally from a [dir] or [query]        |
+| `.ascii random [dir\|query]`            | play random art, optionally from a [dir] or [query]        |
 | `.ascii search <query>`                | search art files that match \<query>                       |
 | `.ascii settings [<setting> <option>]` | view or change settings                                    |
 | `.ascii stop`                          | stop playing art                                           |
