@@ -1,0 +1,5 @@
+# Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.supernets.org/acidvegas/scroll)
+# scroll/requirements.txt
+
+aiohttp
+chardet
