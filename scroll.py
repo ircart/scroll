@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.supernets.org/acidvegas/scroll)
+# scroll/scroll.py
 
 import asyncio
 import random
@@ -7,7 +8,17 @@ import re
 import ssl
 import time
 import urllib.request
-import aiohttp
+
+try:
+	import aiohttp
+except ImportError:
+	raise SystemExit('missing required aiohttp library (pip install aiohttp)')
+
+try:
+	import chardet
+except ImportError:
+	raise SystemExit('missing required chardet library (pip install chardet)')
+
 
 class connection:
 	server  = 'irc.supernets.org'
@@ -51,6 +62,7 @@ pink        = '13'
 grey        = '14'
 light_grey  = '15'
 
+
 def color(msg, foreground, background=None):
 	return f'\x03{foreground},{background}{msg}{reset}' if background else f'\x03{foreground}{msg}{reset}'
 
@@ -89,9 +101,6 @@ class Bot():
 			'lines'        : 500,
 			'msg'          : 0.5,
 			'paste'        : True,
-			'png_palette'  : 'RGB99',
-			'png_quantize' : 99,
-			'png_width'    : 80,
 			'results'      : 25}
 		self.slow            = False
 		self.reader          = None
@@ -173,30 +182,27 @@ class Bot():
 				error('failed to sync database', ex)
 				return
 
-	async def play(self, chan, name, img=False, paste=False):
+	async def play(self, chan, name, paste=False):
 		try:
-			if img or paste:
+			if paste:
 				ascii = get_url(name)
 			else:
 				ascii = get_url(f'https://git.supernets.org/ircart/ircart/raw/branch/master/ircart/{name}.txt')
 			if ascii.getcode() == 200:
-				if img:
-					ascii = img2irc.convert(ascii.read(), img, int(self.settings['png_width']), self.settings['png_palette'], int(self.settings['png_quantize_colors']))
-				else:
-					raw = ascii.read()
-					encoding = chardet.detect(raw)['encoding'] or 'utf-8'
-					ascii = raw.decode(encoding, errors='replace').splitlines()
+				raw = ascii.read()
+				encoding = chardet.detect(raw)['encoding'] or 'utf-8'
+				ascii = raw.decode(encoding, errors='replace').splitlines()
 				if len(ascii) > int(self.settings['lines']) and chan != '#scroll':
 					await self.irc_error(chan, 'file is too big', f'take those {len(ascii):,} lines to #scroll')
 				else:
-					if not img and not paste:
+					if not paste:
 						await self.action(chan, 'the ascii gods have chosen... ' + color(name, cyan))
 					for line in ascii:
 						line = line.replace('\n','').replace('\r','')
 						await self.sendmsg(chan, line + reset)
 						await asyncio.sleep(self.settings['msg'])
 			else:
-				await self.irc_error(chan, 'invalid name', name) if not img and not paste else await self.irc_error(chan, 'invalid url', name)
+				await self.irc_error(chan, 'invalid name', name) if not paste else await self.irc_error(chan, 'invalid url', name)
 		except Exception as ex:
 			try:
 				await self.irc_error(chan, f'error playing {name}', ex)
@@ -275,12 +281,6 @@ class Bot():
 									for dir in self.db:
 										await self.sendmsg(chan, '[{0}] {1}{2}'.format(color(str(list(self.db).index(dir)+1).zfill(2), pink), dir.ljust(10), color('('+str(len(self.db[dir]))+')', grey)))
 										await asyncio.sleep(self.settings['msg'])
-								elif args[1] == 'img' and len(args) == 3:
-									url = args[2]
-									if url.startswith('https://') or url.startswith('http://'):
-										self.playing = True
-										width = 512 - len(line.split(' :')[0])+4
-										self.loops[chan] = asyncio.create_task(self.play(chan, url, img=width))
 								elif msg == '.ascii list':
 									await self.sendmsg(chan, underline + color('https://git.supernets.org/ircart/ircart/src/branch/master/ircart/.list', light_blue))
 								elif args[1] == 'random' and len(args) in (2,3):
@@ -334,7 +334,7 @@ class Bot():
 										setting = args[2]
 										option  = args[3]
 										if setting in self.settings:
-											if setting in ('flood','lines','msg','png_quantize','png_width','results'):
+											if setting in ('flood','lines','msg','results'):
 												try:
 													option = float(option)
 													self.settings[setting] = option
@@ -369,20 +369,15 @@ class Bot():
 			finally:
 				self.last = time.time()
 
-# Main
-print('#'*56)
-print('#{:^54}#'.format(''))
-print('#{:^54}#'.format('Scroll IRC Art Bot'))
-print('#{:^54}#'.format('Developed by acidvegas in Python'))
-print('#{:^54}#'.format('https://git.supernets.org/ircart/scroll'))
-print('#{:^54}#'.format(''))
-print('#'*56)
-try:
-	import chardet
-except ImportError:
-	raise SystemExit('missing required \'chardet\' library (https://pypi.org/project/chardet/)')
-try:
-	import img2irc
-except ImportError:
-	raise SystemExit('missing required \'img2irc\' file (https://github.com/ircart/scroll/blob/master/img2irc.py)')
-asyncio.run(Bot().connect())
+
+
+if __name__ == '__main__':
+	# Main
+	print('#'*56)
+	print('#{:^54}#'.format(''))
+	print('#{:^54}#'.format('Scroll IRC Art Bot'))
+	print('#{:^54}#'.format('Developed by acidvegas in Python'))
+	print('#{:^54}#'.format('https://git.supernets.org/ircart/scroll'))
+	print('#{:^54}#'.format(''))
+	print('#'*56)
+	asyncio.run(Bot().connect())
