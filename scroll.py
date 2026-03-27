@@ -36,6 +36,11 @@ class identity:
 	realname = 'git.acid.vegas/scroll'
 	nickserv = 'changeme'
 
+class repo:
+	url = 'https://git.supernets.org/'
+	repo = 'ircart/ircart'
+
+
 # Settings
 admin = 'acidvegas!*@*' # Can use wildcards (Must be in nick!user@host format)
 
@@ -156,7 +161,7 @@ class Bot():
 				timeout = aiohttp.ClientTimeout(total=30)
 				headers = {'User-Agent': 'scroll/1.0'}
 				async with aiohttp.ClientSession(timeout=timeout, headers=headers) as session:
-					async with session.get(f'https://git.supernets.org/api/v1/repos/ircart/ircart/git/trees/master?recursive=1&page={page}&per_page={per_page}', ssl=False) as resp:
+					async with session.get(f'{repo.url}/api/v1/repos/{repo.repo}/git/trees/{repo.branch}?recursive=1&page={page}&per_page={per_page}', ssl=False) as resp:
 						if resp.status != 200:
 							error('failed to sync database', await resp.text())
 							return
@@ -187,7 +192,7 @@ class Bot():
 			if paste:
 				ascii = get_url(name)
 			else:
-				ascii = get_url(f'https://git.supernets.org/ircart/ircart/raw/branch/master/ircart/{name}.txt')
+				ascii = get_url(f'{repo.url}/{repo.repo}/raw/{repo.branch}/ircart/{name}.txt')
 			if ascii.getcode() == 200:
 				raw = ascii.read()
 				encoding = chardet.detect(raw)['encoding'] or 'utf-8'
@@ -282,7 +287,7 @@ class Bot():
 										await self.sendmsg(chan, '[{0}] {1}{2}'.format(color(str(list(self.db).index(dir)+1).zfill(2), pink), dir.ljust(10), color('('+str(len(self.db[dir]))+')', grey)))
 										await asyncio.sleep(self.settings['msg'])
 								elif msg == '.ascii list':
-									await self.sendmsg(chan, underline + color('https://git.supernets.org/ircart/ircart/src/branch/master/ircart/.list', light_blue))
+									await self.sendmsg(chan, underline + color(f'{repo.url}/{repo.repo}/src/{repo.branch}/ircart/.list', light_blue))
 								elif args[1] == 'random' and len(args) in (2,3):
 									if len(args) == 3:
 										query = args[2]
@@ -372,7 +377,6 @@ class Bot():
 
 
 if __name__ == '__main__':
-	# Main
 	print('#'*56)
 	print('#{:^54}#'.format(''))
 	print('#{:^54}#'.format('Scroll IRC Art Bot'))
