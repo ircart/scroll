@@ -164,7 +164,7 @@ class Bot():
 						
 						# Process files from this page
 						for file in files['tree']:
-							if file['path'].startswith('ircart/') and file['path'].endswith('.txt') and not file['path'].startswith('ircart/.') and not file['path'].startswith('ircart/nazi/'):
+							if file['path'].startswith('ircart/') and file['path'].endswith('.txt') and not file['path'].startswith('ircart/.'):
 								name = file['path'][7:-4]
 								if '/' in name:
 									dir, fname = name.split('/', 1)
