@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.acid.vegas/scroll)
+# Scroll IRC Art Bot - Developed by acidvegas in Python (https://git.supernets.org/acidvegas/scroll)
 
 import asyncio
 import random
@@ -10,12 +10,12 @@ import urllib.request
 import aiohttp
 
 class connection:
-	server  = 'irc.server.com'
+	server  = 'irc.supernets.org'
 	port    = 6697
 	ipv6    = False
 	ssl     = True
 	vhost   = None # Must in ('ip', port) format
-	channel = '#chats'
+	channel = '#superbowl'
 	key     = None
 	modes   = 'BdDg'
 
@@ -23,7 +23,7 @@ class identity:
 	nickname = 'scroll'
 	username = 'scroll'
 	realname = 'git.acid.vegas/scroll'
-	nickserv = None
+	nickserv = 'changeme'
 
 # Settings
 admin = 'acidvegas!*@*' # Can use wildcards (Must be in nick!user@host format)
@@ -87,7 +87,7 @@ class Bot():
 			'flood'        : 1,
 			'ignore'       : 'big,birds,doc,gorf,hang,nazi,pokemon',
 			'lines'        : 500,
-			'msg'          : 0.03,
+			'msg'          : 0.5,
 			'paste'        : True,
 			'png_palette'  : 'RGB99',
 			'png_quantize' : 99,
@@ -144,8 +144,10 @@ class Bot():
 		
 		while True:
 			try:
-				async with aiohttp.ClientSession() as session:
-					async with session.get(f'https://git.supernets.org/api/v1/repos/ircart/ircart/git/trees/master?recursive=1&page={page}&per_page={per_page}') as resp:
+				timeout = aiohttp.ClientTimeout(total=30)
+				headers = {'User-Agent': 'scroll/1.0'}
+				async with aiohttp.ClientSession(timeout=timeout, headers=headers) as session:
+					async with session.get(f'https://git.supernets.org/api/v1/repos/ircart/ircart/git/trees/master?recursive=1&page={page}&per_page={per_page}', ssl=False) as resp:
 						if resp.status != 200:
 							error('failed to sync database', await resp.text())
 							return
@@ -153,8 +155,8 @@ class Bot():
 						
 						# Process files from this page
 						for file in files['tree']:
-							if file['path'].startswith('ircart/') and file['path'].endswith('.txt') and not file['path'].startswith('ircart/.'):
-								name = file['path'][7:-4]  # Just strip 'ircart/' prefix and '.txt' suffix
+							if file['path'].startswith('ircart/') and file['path'].endswith('.txt') and not file['path'].startswith('ircart/.') and not file['path'].startswith('ircart/nazi/'):
+								name = file['path'][7:-4]
 								if '/' in name:
 									dir, fname = name.split('/', 1)
 									self.db[dir] = self.db[dir]+[fname,] if dir in self.db else [fname,]
@@ -181,18 +183,15 @@ class Bot():
 				if img:
 					ascii = img2irc.convert(ascii.read(), img, int(self.settings['png_width']), self.settings['png_palette'], int(self.settings['png_quantize_colors']))
 				else:
-					ascii = ascii.readlines()
+					raw = ascii.read()
+					encoding = chardet.detect(raw)['encoding'] or 'utf-8'
+					ascii = raw.decode(encoding, errors='replace').splitlines()
 				if len(ascii) > int(self.settings['lines']) and chan != '#scroll':
 					await self.irc_error(chan, 'file is too big', f'take those {len(ascii):,} lines to #scroll')
 				else:
 					if not img and not paste:
 						await self.action(chan, 'the ascii gods have chosen... ' + color(name, cyan))
 					for line in ascii:
-						if type(line) == bytes:
-							try:
-								line = line.decode()
-							except UnicodeError:
-								line = line.decode(chardet.detect(line)['encoding']).encode().decode() # TODO: Do we need to re-encode/decode in UTF-8?
 						line = line.replace('\n','').replace('\r','')
 						await self.sendmsg(chan, line + reset)
 						await asyncio.sleep(self.settings['msg'])
@@ -200,9 +199,9 @@ class Bot():
 				await self.irc_error(chan, 'invalid name', name) if not img and not paste else await self.irc_error(chan, 'invalid url', name)
 		except Exception as ex:
 			try:
-				await self.irc_error(chan, 'error in play function', ex)
+				await self.irc_error(chan, f'error playing {name}', ex)
 			except:
-				error('error in play function', ex)
+				error(f'error playing {name}', ex)
 		finally:
 			self.playing = False
 
@@ -224,6 +223,7 @@ class Bot():
 						await self.raw(f'MODE {identity.nickname} +{connection.modes}')
 					if identity.nickserv:
 						await self.sendmsg('NickServ', f'IDENTIFY {identity.nickname} {identity.nickserv}')
+					await asyncio.sleep(6)
 					await self.raw(f'JOIN {connection.channel} {connection.key}') if connection.key else await self.raw('JOIN ' + connection.channel)
 					await self.raw('JOIN #scroll')
 					await self.sync()
@@ -258,7 +258,7 @@ class Bot():
 					if chan in  (connection.channel, '#scroll'):
 						args = msg.split()
 						if msg == '@scroll':
-							await self.sendmsg(chan, bold + 'Scroll IRC Art Bot - Developed by acidvegas in Python - https://git.acid.vegas/scroll')
+							await self.sendmsg(chan, bold + 'Scroll IRC Art Bot - Developed by acidvegas in Python - https://git.supernets.org/ircart/scroll')
 						elif args[0] == '.ascii':
 							if msg == '.ascii stop':
 								if self.playing:
@@ -287,8 +287,12 @@ class Bot():
 									if len(args) == 3:
 										query = args[2]
 									else:
-										query = random.choice([item for item in self.db if item not in self.settings['ignore']])
-									if query in self.db:
+										choices = [item for item in self.db if item not in self.settings['ignore'] and self.db[item]]
+										if not choices:
+											await self.irc_error(chan, 'database is empty', 'try .ascii sync')
+											continue
+										query = random.choice(choices)
+									if query in self.db and self.db[query]:
 										ascii = f'{query}/{random.choice(self.db[query])}'
 										self.playing = True
 										self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
@@ -370,7 +374,7 @@ print('#'*56)
 print('#{:^54}#'.format(''))
 print('#{:^54}#'.format('Scroll IRC Art Bot'))
 print('#{:^54}#'.format('Developed by acidvegas in Python'))
-print('#{:^54}#'.format('https://git.acid.vegas/scroll'))
+print('#{:^54}#'.format('https://git.supernets.org/ircart/scroll'))
 print('#{:^54}#'.format(''))
 print('#'*56)
 try:
