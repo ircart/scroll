@@ -321,14 +321,14 @@ class Bot():
 											continue
 										query = random.choice(choices)
 									if query in self.db and self.db[query]:
-										ascii = f'{query}/{random.choice(self.db[query])}'
+										ascii = f'{query}/{random.choice(self.db[query])}'.replace('root/','')
 										self.playing = True
 										self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
 									else:
 										results = [{'name':ascii,'dir':dir} for dir in self.db for ascii in self.db[dir] if query in ascii]
 										if results:
 											ascii = random.choice(results)
-											ascii = f'{ascii["dir"]}/{ascii["name"]}'
+											ascii = f'{ascii["dir"]}/{ascii["name"]}'.replace('root/','')
 											self.playing = True
 											self.loops[chan] = asyncio.create_task(self.play(chan, ascii))
 										else:
