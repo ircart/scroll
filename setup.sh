@@ -7,7 +7,7 @@
 set -e
 
 REPO='https://github.com/waveplate/img2irc'
-COMMIT='ec62c7f168a3da1ca1aec2676ec27b825e731bd0'
+COMMIT='74aa4f63293a8b0062ef322a01ad765e27914c35' # v2.0.1-alpha
 PATCH="$(cd "$(dirname "$0")" && pwd)/img2irc.patch"
 SRC="${1:-$HOME/src/img2irc}"
 
@@ -24,22 +24,22 @@ if ! command -v cargo >/dev/null; then
 fi
 
 if [ -d "$SRC/.git" ]; then
-	git -C "$SRC" fetch -q origin
+	git -C "$SRC" fetch -q --tags origin
 else
 	git clone -q "$REPO" "$SRC"
 fi
 
+git -C "$SRC" checkout -q . # discard a previously applied patch
 git -C "$SRC" checkout -q "$COMMIT"
-git -C "$SRC" checkout -q .
 git -C "$SRC" apply "$PATCH"
 
 cd "$SRC"
-cargo generate-lockfile
+cargo build --release --no-default-features # updates Cargo.lock for the crates the patch removes
 if command -v cargo-audit >/dev/null; then
 	cargo audit || echo 'cargo audit reported warnings'
 else
 	echo 'skipping cargo audit (cargo install cargo-audit)'
 fi
-cargo install --path . --locked
+cargo install --path . --locked --no-default-features
 
 echo "img2irc installed to $(command -v img2irc)"
