@@ -1,0 +1,68 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 53ceb69..08d5dea 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -23,13 +23,6 @@ name = "img2irc"
+ path = "src/main.rs"
+ 
+ [dependencies]
+-tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }
+-reqwest = "0.11.14"
+-photon-rs = "0.3.3"
++photon-rs = { version = "0.3.3", default-features = false }
+ clap = { version = "4.2.0", features = ["cargo", "derive"] }
+-url = "2.3.1"
+-atty = "0.2.14"
+ once_cell = "1.21.3"
+-
+-[target.'cfg(target_env = "musl")'.dependencies]
+-openssl = { version = "0.10", features = ["vendored"] }
+diff --git a/src/main.rs b/src/main.rs
+index 23194e9..f22c073 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -4,16 +4,13 @@ mod chars;
+ mod palette;
+ mod effects;
+ 
+-use reqwest;
+-use url::Url;
+ use photon_rs::PhotonImage;
+-use std::{error::Error, io::Cursor, process::exit};
++use std::{error::Error, process::exit};
+ 
+-#[tokio::main]
+-async fn main() {
++fn main() {
+     let args = args::parse_args();
+ 
+-    match load_image_from_url_or_path(args.image.as_str()).await {
++    match load_image(args.image.as_str()) {
+         Ok(image) => {
+ 
+             let image = effects::apply_effects(&args, image.clone());
+@@ -43,22 +40,6 @@ async fn main() {
+     }
+ }
+ 
+-async fn load_image_from_url_or_path(image: &str) -> Result<PhotonImage, Box<dyn Error>> {
+-    match Url::parse(image) {
+-        Ok(url) => {
+-            let response = reqwest::get(url).await?;
+-            let bytes = response.bytes().await?;
+-            let image_data = Cursor::new(bytes);
+-            match photon_rs::native::open_image_from_bytes(image_data.into_inner().as_ref()) {
+-                Ok(image) => Ok(image),
+-                Err(e) => Err(Box::new(e)),
+-            }
+-        }
+-        Err(_) => {
+-            match photon_rs::native::open_image(image) {
+-                Ok(image) => Ok(image),
+-                Err(e) => Err(Box::new(e)),
+-            }
+-        }
+-    }
++fn load_image(path: &str) -> Result<PhotonImage, Box<dyn Error>> {
++    Ok(photon_rs::native::open_image(path)?)
+ }
