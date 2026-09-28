@@ -101,7 +101,7 @@ class Bot():
 			'ignore'       : 'big,birds,doc,gorf,hang,nazi,pokemon',
 			'linelen'      : 512,
 			'lines'        : 500,
-			'msg'          : 0.5,
+			'msg'          : 0.03,
 			'results'      : 25}
 		self.slow            = False
 		self.reader          = None
@@ -372,7 +372,7 @@ class Bot():
 											await self.irc_error(chan, 'invalid setting', setting)
 								elif len(args) == 2:
 									query = args[1]
-									results = [dir+'/'+ascii for dir in self.db for ascii in self.db[dir] if query == ascii]
+									results = [dir+'/'+ascii for dir in self.db for ascii in self.db[dir] if query in (ascii, dir+'/'+ascii)]
 									if results:
 										results = results[0].replace('root/','')
 										self.playing = True
