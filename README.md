@@ -15,7 +15,7 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 | Command                                | Description                                                |
 | -------------------------------------- | ---------------------------------------------------------- |
 | `@scroll`                              | information about scroll                                   |
-| `.ascii <name>`                        | play the \<name> art file                                  |
+| `.ascii [dir/]<name>`                  | play the \<name> art file, optionally from a [dir]         |
 | `.ascii dirs`                          | list of art directories                                    |
 | `.ascii flag <name> <reason>`          | flag bad art for review *(saved to flagged.txt)*           |
 | `.ascii list`                          | list of art filenames                                      |
