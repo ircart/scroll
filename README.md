@@ -11,7 +11,7 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 * [aiohttp](https://pypi.org/project/aiohttp/) *(`pip install aiohttp`)*
 * [chardet](https://pypi.org/project/chardet/) *(`pip install chardet`)*
 * [Pillow](https://pypi.org/project/Pillow/) *(`pip install Pillow`)*
-* [img2irc](https://github.com/waveplate/img2irc) *(patched build, see below)*
+* [img2irc](https://github.com/waveplate/img2irc) *(patched build, run `./setup.sh`)*
 
 ## Commands
 | Command                                | Description                                                |
@@ -46,15 +46,13 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 ## img2irc
 `.ascii img` accepts any [img2irc](https://github.com/waveplate/img2irc) option except `--render` *(always `irc`)* & `--scale`. The width defaults to & is capped at 80 columns *(it shrinks automatically when a line would not fit the server line limit)* & the height is capped at the `lines` setting. Images are downloaded by scroll *(public addresses only, max 10 MB & 4096x4096)* & validated with Pillow before img2irc ever sees them.
 
-img2irc is built from commit `ec62c7f` with [img2irc.patch](img2irc.patch), which removes its own url fetching *(reqwest, tokio, url, openssl)*, the unused atty crate & the wasm features of photon-rs:
+Run [setup.sh](setup.sh) to build it *(needs a [rust](https://rustup.rs) toolchain)*:
 
 ```shell
-git clone https://github.com/waveplate/img2irc && cd img2irc
-git checkout ec62c7f168a3da1ca1aec2676ec27b825e731bd0
-git apply ../img2irc.patch
-cargo generate-lockfile && cargo audit
-cargo install --path . --locked
+./setup.sh
 ```
+
+It clones [img2irc](https://github.com/waveplate/img2irc) at commit `ec62c7f` into `~/src/img2irc` *(pass a path to use another directory)*, applies [img2irc.patch](img2irc.patch), runs `cargo audit` when it is installed & installs the binary to `~/.cargo/bin/img2irc` where scroll looks for it. The patch removes img2irc's own url fetching *(reqwest, tokio, url, openssl)*, the unused atty crate & the wasm features of photon-rs.
 
 ## Preview
 
