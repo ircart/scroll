@@ -10,8 +10,8 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 * [python](https://www.python.org/)
 * [aiohttp](https://pypi.org/project/aiohttp/) *(`pip install aiohttp`)*
 * [chardet](https://pypi.org/project/chardet/) *(`pip install chardet`)*
-* [Pillow](https://pypi.org/project/Pillow/) *(`pip install Pillow`)*
-* [img2irc](https://github.com/waveplate/img2irc) *(patched build, run `./setup.sh`)*
+* [Pillow](https://pypi.org/project/Pillow/) *(`pip install Pillow`)* **optional**, for `.ascii img`
+* [img2irc](https://github.com/waveplate/img2irc) *(patched build, run `./setup.sh`)* **optional**, for `.ascii img`
 
 ## Commands
 | Command                                | Description                                                |
@@ -44,6 +44,8 @@ Designed to be portable, there is no API key needed, no local art files needed, 
 | `results`             | int          | max results to return in `.ascii search`                                                     |
 
 ## img2irc
+`.ascii img` is optional: without Pillow or the img2irc binary scroll runs fine, the command replies that image support is not enabled & both it & the `.ascii help img` topic are left out of `.ascii help`.
+
 `.ascii img` accepts any [img2irc](https://github.com/waveplate/img2irc) option except `--render` *(always `irc`)* & `--scale`. The width defaults to & is capped at 80 columns *(it shrinks automatically when a line would not fit the server line limit)* & the height is capped at the `lines` setting. Images are downloaded by scroll *(public addresses only, max 10 MB & 4096x4096)* & validated with Pillow before img2irc ever sees them.
 
 Run [setup.sh](setup.sh) to build it *(needs a [rust](https://rustup.rs) toolchain)*:

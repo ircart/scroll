@@ -26,9 +26,9 @@ except ImportError:
 	raise SystemExit('missing required chardet library (pip install chardet)')
 
 try:
-	from PIL import Image
+	from PIL import Image # Only needed for .ascii img
 except ImportError:
-	raise SystemExit('missing required Pillow library (pip install Pillow)')
+	Image = None
 
 
 class connection:
@@ -139,6 +139,10 @@ def img2irc_args(tokens, lines):
 		else:
 			raise ValueError(f'unknown option {token}')
 	return options
+
+def img_ready():
+	# .ascii img needs both the Pillow library & the img2irc binary from setup.sh
+	return Image is not None and os.path.isfile(img2irc.binary)
 
 def is_public(address):
 	ip = ipaddress.ip_address(address)
@@ -374,7 +378,7 @@ class Bot():
 				f'.ascii dirs                          {bar} list of art directories',
 				'.ascii dupe ' + color('[name]', pink) + f'                   {bar} play every copy of the next unflagged duplicate name, or ' + color('[name]', pink),
 				f'.ascii flag {arg("<name>")} {arg("<reason>")}          {bar} flag bad art for review ' + color('(admin only)', grey),
-				'.ascii help ' + color('[img]', pink) + f'                    {bar} show this help or the .ascii img options',
+				'.ascii help ' + (color('[img]', pink) if img_ready() else '     ') + f'                    {bar} show this help' + (' or the .ascii img options' if img_ready() else ''),
 				f'.ascii img {arg("<url>")} ' + color('[options]', pink) + f'           {bar} convert an image to art ' + color('(see .ascii help img)', grey),
 				f'.ascii list                          {bar} list of art filenames',
 				'.ascii random ' + color('[dir|query]', pink) + f'            {bar} play random art, optionally from a ' + color('[dir]', pink) + ' or ' + color('[query]', pink),
@@ -383,6 +387,8 @@ class Bot():
 				f'.ascii stop                          {bar} stop playing art',
 				f'.ascii sync                          {bar} sync the ascii database to pump the newest art ' + color('(admin only)', grey)]
 		for line in lines:
+			if '.ascii img ' in line and not img_ready():
+				continue
 			await self.sendmsg(chan, self.trim(chan, line))
 			await asyncio.sleep(self.settings['msg'])
 
@@ -568,7 +574,9 @@ class Bot():
 										else:
 											await self.irc_error(chan, 'invalid directory name or search query', query)
 								elif args[1] == 'img' and len(args) >= 3:
-									if time.time() - self.lastimg < self.settings['imgflood']:
+									if not img_ready():
+										await self.irc_error(chan, 'image support is not enabled', 'run setup.sh')
+									elif time.time() - self.lastimg < self.settings['imgflood']:
 										await self.irc_error(chan, 'slow down nerd', f'{self.settings["imgflood"]}s between images')
 									else:
 										self.lastimg     = time.time()
@@ -612,7 +620,7 @@ class Bot():
 										else:
 											await self.irc_error(chan, 'invalid setting', setting)
 								elif args[1] == 'help' and len(args) in (2, 3):
-									if len(args) == 3 and args[2] != 'img':
+									if len(args) == 3 and (args[2] != 'img' or not img_ready()):
 										await self.irc_error(chan, 'no help for', args[2])
 									else:
 										await self.help(chan, args[2] if len(args) == 3 else None)
