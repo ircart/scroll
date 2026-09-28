@@ -3,4 +3,4 @@
 
 aiohttp
 chardet
-Pillow
+Pillow # optional, only needed for .ascii img
