@@ -54,7 +54,9 @@ Run [setup.sh](setup.sh) to build it *(needs a [rust](https://rustup.rs) toolcha
 ./setup.sh
 ```
 
-It clones [img2irc](https://github.com/waveplate/img2irc) at commit `ec62c7f` into `~/src/img2irc` *(pass a path to use another directory)*, applies [img2irc.patch](img2irc.patch), runs `cargo audit` when it is installed & installs the binary to `~/.cargo/bin/img2irc` where scroll looks for it. The patch removes img2irc's own url fetching *(reqwest, tokio, url, openssl)*, the unused atty crate & the wasm features of photon-rs.
+It clones [img2irc](https://github.com/waveplate/img2irc) at commit `74aa4f6` *(v2.0.1-alpha)* into `~/src/img2irc` *(pass a path to use another directory)*, applies [img2irc.patch](img2irc.patch), runs `cargo audit` when it is installed & installs the binary to `~/.cargo/bin/img2irc` where scroll looks for it.
+
+The patch removes img2irc's own url fetching *(reqwest & url, which also drops openssl)* so the binary has no network access at all, & fixes two build errors in the no-ocr configuration. Everything is built with `--no-default-features`, which leaves out the `ocr` feature *(onnx runtime, third party model downloads at runtime, figlet & zip)* while keeping the renderer, glyph sets, smoothing & svg support.
 
 ## Preview
 

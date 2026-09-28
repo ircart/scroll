@@ -64,10 +64,11 @@ class img2irc:
 # img2irc options that take a value & their (min, max) where a cap is needed (--render is forced to irc & --scale is not allowed)
 img2irc_values = {'width': (1, img2irc.width), 'height': (1, None), 'crop': None, 'filter': None, 'rotate': None, 'blocks': None, 'brightness': None, 'contrast': None,
 	'gamma': None, 'saturation': None, 'hue': None, 'dither': (0, 8), 'luma-brightness': None, 'luma-contrast': None, 'luma-gamma': None, 'luma-saturation': None,
-	'colorspace': None, 'pixelize': (0, 50), 'gaussianblur': (0, 20), 'oil': None}
+	'colorspace': None, 'pixelize': (0, 50), 'gaussianblur': (0, 20), 'lumablur': (0, 20), 'oil': None, 'glyphs': None, 'include': None, 'include-range': None,
+	'exclude': None, 'exclude-range': None}
 img2irc_flags  = ('fliph', 'flipv', 'braille', 'invert', 'luma-invert', 'grayscale', 'nograyscale', 'boxblur', 'halftone', 'sepia', 'normalize', 'noise', 'emboss',
 	'identity', 'laplace', 'denoise', 'sharpen', 'cali', 'dramatic', 'firenze', 'golden', 'lix', 'lofi', 'neue', 'obsidian', 'pastelpink', 'ryo', 'frostedglass',
-	'solarize', 'edgedetection')
+	'solarize', 'edgedetection', 'smooth', 'smooth-features', 'perceptual-score')
 img2irc_short  = {'w': 'width', 'H': 'height', 'b': 'brightness', 'c': 'contrast', 'g': 'gamma', 's': 'saturation', 'u': 'hue', 'i': 'invert', 'd': 'dither',
 	'B': 'luma-brightness', 'C': 'luma-contrast', 'G': 'luma-gamma', 'S': 'luma-saturation', 'I': 'luma-invert'}
 
@@ -341,7 +342,14 @@ class Bot():
 				('--fliph',              None,                                'flip horizontally'),
 				('--flipv',              None,                                'flip vertically'),
 				('--filter',             'name',                              'nearest, triangle, catmull-rom, gaussian or lanczos3 ' + color('(default nearest)', grey)),
-				('--blocks',             'types',                             'full, half, quarter, eighth, triangle, corner, geometric, box, legacy ' + color('(default all)', grey)),
+				('--glyphs, --blocks',   'types',                             'full, half, quarter, eighth, triangle, corner, geometric, box, legacy ' + color('(default all)', grey)),
+				('--include',            'chars',                             'only use these characters'),
+				('--include-range',      'start-end',                         'only use this unicode range ' + color('(e.g. 2580-259F)', grey)),
+				('--exclude',            'chars',                             'never use these characters'),
+				('--exclude-range',      'start-end',                         'never use this unicode range'),
+				('--smooth',             None,                                'smooth rough glyph transitions'),
+				('--smooth-features',    None,                                'experimental feature smoothing'),
+				('--perceptual-score',   None,                                'experimental perceptual quality scoring'),
 				('--braille',            None,                                'use braille dots instead of blocks'),
 				('-b, --brightness',     'n',                                 'adjust brightness ' + color('(0 = no change)', grey)),
 				('-c, --contrast',       'n',                                 'adjust contrast ' + color('(0 = no change)', grey)),
@@ -360,6 +368,7 @@ class Bot():
 				('-I, --luma-invert',    None,                                'braille inverted luminance'),
 				('--pixelize',           '0-50',                              'pixelize size'),
 				('--gaussianblur',       '0-20',                              'gaussian blur radius'),
+				('--lumablur',           '0-20',                              'gaussian blur radius, luminance only'),
 				('--boxblur',            None,                                'box blur'),
 				('--oil',                'radius,intensity',                  'oil painting ' + color('(radius 0-10)', grey)),
 				('--<effect>',           None,                                'halftone, sepia, normalize, noise, emboss, laplace, sharpen, edgedetection, solarize, frostedglass'),
