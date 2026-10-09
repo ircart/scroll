@@ -40,6 +40,7 @@ class connection:
 	channel = '#superbowl'
 	key     = None
 	modes   = 'BdDg'
+	linelen = 512 # Max IRC line length in bytes (512 is the standard, only raise it if the ircd was modified to accept longer lines)
 
 class identity:
 	nickname = 'scroll'
@@ -190,7 +191,7 @@ class Bot():
 			'flood'        : 1,
 			'ignore'       : 'big,birds,doc,gorf,hang,nazi,pokemon',
 			'imgflood'     : 5,
-			'linelen'      : 512,
+			'linelen'      : connection.linelen,
 			'lines'        : 500,
 			'msg'          : 0.03,
 			'results'      : 25}
